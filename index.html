@@ -1,0 +1,3882 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pilot Interview Study Tool</title>
+    <style>
+        :root {
+            --primary: #1a4b8c;
+            --secondary: #2c6cb0;
+            --light: #e6f2ff;
+            --success: #4caf50;
+            --error: #f44336;
+            --warning: #ff9800;
+            --text: #333;
+            --light-text: #666;
+            --border: #ddd;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: var(--text);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px var(--shadow);
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+        }
+        
+        .controls {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px var(--shadow);
+        }
+        
+        .quiz-area {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px var(--shadow);
+        }
+        
+        .section-title {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            color: var(--primary);
+            border-bottom: 2px solid var(--light);
+            padding-bottom: 8px;
+        }
+        
+        .control-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        select, input, button {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-weight: 600;
+        }
+        
+        button:hover {
+            background-color: var(--secondary);
+        }
+        
+        .btn-secondary {
+            background-color: var(--light-text);
+        }
+        
+        .btn-secondary:hover {
+            background-color: #555;
+        }
+        
+        .btn-success {
+            background-color: var(--success);
+        }
+        
+        .btn-success:hover {
+            background-color: #3d8b40;
+        }
+        
+        .btn-warning {
+            background-color: var(--warning);
+        }
+        
+        .btn-warning:hover {
+            background-color: #e68900;
+        }
+        
+        .search-container {
+            position: relative;
+        }
+        
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background-color: white;
+            border: 1px solid var(--border);
+            border-radius: 0 0 4px 4px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 10;
+            display: none;
+        }
+        
+        .search-result-item {
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--light);
+        }
+        
+        .search-result-item:hover {
+            background-color: var(--light);
+        }
+        
+        .question-container {
+            margin-bottom: 20px;
+        }
+        
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+        
+        .question-text {
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+        
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .option {
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .option:hover {
+            background-color: var(--light);
+        }
+        
+        .option.selected {
+            border-color: var(--primary);
+            background-color: #e6f2ff;
+        }
+        
+        .option.correct {
+            background-color: #e8f5e9;
+            border-color: var(--success);
+            color: var(--success);
+        }
+        
+        .option.incorrect {
+            background-color: #ffebee;
+            border-color: var(--error);
+            color: var(--error);
+        }
+        
+        .feedback {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            display: none;
+        }
+        
+        .feedback.correct {
+            background-color: #e8f5e9;
+            color: var(--success);
+            display: block;
+        }
+        
+        .feedback.incorrect {
+            background-color: #ffebee;
+            color: var(--error);
+            display: block;
+        }
+        
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        
+        .results {
+            text-align: center;
+            padding: 30px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px var(--shadow);
+        }
+        
+        .results:not(.hidden) {
+            display: block;
+        }
+        
+        .score {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        
+        .pass {
+            color: var(--success);
+        }
+        
+        .fail {
+            color: var(--error);
+        }
+        
+        .grade {
+            font-size: 3rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .grade-A {
+            color: #4caf50; /* Green */
+        }
+        
+        .grade-B {
+            color: #8bc34a; /* Light Green */
+        }
+        
+        .grade-C {
+            color: #ffc107; /* Amber */
+        }
+        
+        .grade-D {
+            color: #ff9800; /* Orange */
+        }
+        
+        .grade-F {
+            color: #f44336; /* Red */
+        }
+        
+        .wrong-answers {
+            margin-top: 30px;
+            text-align: left;
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+        
+        .wrong-answer-item {
+            margin-bottom: 25px;
+            padding: 20px;
+            border: 1px solid var(--error);
+            border-radius: 8px;
+            background-color: #ffebee;
+            border-left: 5px solid var(--error);
+        }
+        
+        .wrong-answer-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .wrong-answers-info {
+            background-color: #fff3e0;
+            border: 1px solid var(--warning);
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .progress-bar {
+            height: 6px;
+            background-color: var(--light);
+            border-radius: 3px;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background-color: var(--primary);
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Pilot Interview Study Tool</h1>
+            <p class="subtitle">Prepare for your pilot interview with our comprehensive question bank</p>
+        </header>
+        
+        <div class="dashboard">
+            <div class="controls">
+                <h2 class="section-title">Study Options</h2>
+                
+                <div class="control-group">
+                    <label for="study-mode">Study Mode</label>
+                    <select id="study-mode">
+                        <option value="random">Random Questions</option>
+                        <option value="parts">Question Parts</option>
+                        <option value="search">Search Questions</option>
+                        <option value="wrong-answers">Wrong Answers</option>
+                    </select>
+                </div>
+                
+                <div id="random-controls" class="control-group">
+                    <label for="question-count">Number of Questions</label>
+                    <select id="question-count">
+                        <option value="10">10 Questions</option>
+                        <option value="20">20 Questions</option>
+                        <option value="30" selected>30 Questions</option>
+                        <option value="50">50 Questions</option>
+                        <option value="100">100 Questions</option>
+                    </select>
+                </div>
+                
+                <div id="parts-controls" class="control-group hidden">
+                    <label for="question-part">Select Part</label>
+                    <select id="question-part">
+                        <!-- Will be populated by JavaScript -->
+                    </select>
+                </div>
+                
+                <div id="search-controls" class="control-group hidden">
+                    <label for="search-input">Search Questions</label>
+                    <div class="search-container">
+                        <input type="text" id="search-input" placeholder="Enter keywords...">
+                        <div class="search-results" id="search-results"></div>
+                    </div>
+                </div>
+                
+                <div id="wrong-answers-controls" class="control-group hidden">
+                    <div class="wrong-answers-info">
+                        <p><strong>Study your previously incorrect answers</strong></p>
+                        <p id="wrong-answers-count">No wrong answers recorded yet</p>
+                    </div>
+                    <button id="clear-wrong-answers-btn" class="btn-warning">Clear Wrong Answers History</button>
+                </div>
+                
+                <button id="start-btn">Start Quiz</button>
+                <button id="reset-btn" class="btn-secondary">Reset</button>
+            </div>
+            
+            <div class="quiz-area">
+                <div id="intro-screen">
+                    <h2 class="section-title">Welcome to the Pilot Interview Study Tool</h2>
+                    <p>This tool will help you prepare for your pilot interview by testing your knowledge across various aviation topics.</p>
+                    <p>Select your preferred study mode and click "Start Quiz" to begin.</p>
+                    <ul>
+                        <li><strong>Random Questions:</strong> Get a random selection of questions from the entire question bank</li>
+                        <li><strong>Question Parts:</strong> Study questions in organized parts (30 questions each)</li>
+                        <li><strong>Search Questions:</strong> Find specific questions by keyword</li>
+                        <li><strong>Wrong Answers:</strong> Review questions you've answered incorrectly in previous sessions</li>
+                    </ul>
+                </div>
+                
+                <div id="quiz-screen" class="hidden">
+                    <div class="progress-bar">
+                        <div class="progress" id="progress-bar"></div>
+                    </div>
+                    <div id="question-container"></div>
+                    <div class="navigation">
+                        <button id="prev-btn" class="btn-secondary">Previous</button>
+                        <button id="next-btn">Next</button>
+                        <button id="submit-btn" class="btn-success hidden">Submit Answers</button>
+                    </div>
+                </div>
+                
+                <div id="results-screen" class="results hidden">
+                    <h2 class="section-title">Quiz Results</h2>
+                    <div class="grade" id="grade-display"></div>
+                    <div class="score" id="score-display"></div>
+                    <p id="pass-fail-message"></p>
+                    <button id="review-wrong-btn" class="btn-secondary">Review Wrong Answers</button>
+                    <button id="restart-btn">Start New Quiz</button>
+                    
+                    <div id="wrong-answers-container" class="wrong-answers hidden">
+                        <h3>Questions to Review</h3>
+                        <div id="wrong-answers-list"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+ 
+
+ // Question data from the document
+        const questions = [
+            {
+                id: 21,
+                text: "The fan in a high by-pass ratio turbo-jet engine produces:",
+                options: [
+                    "the least part of the thrust.",
+                    "the greatest part of the thrust.",
+                    "half the thrust.",
+                    "none of the thrust."
+                ],
+                correct: 1
+            },
+            {
+                id: 25,
+                text: "The reason for using inverters in an electrical system is:",
+                options: [
+                    "to change AC into DC.",
+                    "to avoid a short circuit.",
+                    "to change the DC voltage.",
+                    "to change DC into AC."
+                ],
+                correct: 3
+            },
+            {
+                id: 27,
+                text: "The pilot's control input in a Fly-By-Wire system is..",
+                options: [
+                    "linked by mechanical cables directly to the flight control surface.",
+                    "converted into an electrical signal and linked via a computer to the flight control surface.",
+                    "linked mechanically to a computer and then to the flight control surface.",
+                    "linked by electrical wires directly to the flight control surface."
+                ],
+                correct: 1
+            },
+            {
+                id: 29,
+                text: "In flight, the cabin air for large jet transport aeroplanes is usually supplied by ..",
+                options: [
+                    "single radial compressors.",
+                    "engine compressors.",
+                    "ram air intakes.",
+                    "piston compressors."
+                ],
+                correct: 1
+            },
+            {
+                id: 31,
+                text: "A cabin pressure controller maintains a pre-set cabin altitude by regulating the..",
+                options: [
+                    "position of the duct relief valve/valves.",
+                    "position of the inward relief valve.",
+                    "mass air flow into the cabin.",
+                    "position of the outflow valve/valves."
+                ],
+                correct: 3
+            },
+            {
+                id: 33,
+                text: "EPR can be defined as the ratio of:",
+                options: [
+                    "the total turbine outlet pressure to the total compressor outlet pressure.",
+                    "the total turbine inlet pressure to the total compressor inlet pressure.",
+                    "the total turbine outlet pressure to the total compressor inlet pressure.",
+                    "the total turbine inlet pressure to the total compressor outlet pressure"
+                ],
+                correct: 2
+            },
+            {
+                id: 35,
+                text: "In jet aircraft equipped with a thermal anti-ice system, this is primarily supplied by..",
+                options: [
+                    "mechanical anti-icing boots.",
+                    "electrically heating the surfaces to be protected.",
+                    "ram air, heated via a heat exchanger.",
+                    "bleed air from the engines."
+                ],
+                correct: 3
+            },
+            {
+                id: 36,
+                text: "When large transport aeroplanes are flying at high speed, full rudder deflection would cause excessive loads on the structure. What system is fitted to the rudder to prevent this happening?",
+                options: [
+                    "Rudder trim system.",
+                    "Fully powered rudder control.",
+                    "Rudder ratio or rudder travel changer.",
+                    "Yaw damper system."
+                ],
+                correct: 2
+            },
+            {
+                id: 40,
+                text: "A bus bar is:",
+                options: [
+                    "the stator of a moving coil instrument.",
+                    "a distribution means for electrical power.",
+                    "a device which may only be used in DC circuits.",
+                    "a device permitting operation of two or more switches together."
+                ],
+                correct: 1
+            },
+            {
+                id: 44,
+                text: "The most widely used AC frequency in aircraft is:",
+                options: [
+                    "115 Hz.",
+                    "50 Hz.",
+                    "60 Hz.",
+                    "400 Hz."
+                ],
+                correct: 3
+            },
+            {
+                id: 48,
+                text: "The input and output of a static inverter are respectively:",
+                options: [
+                    "AC and AC.",
+                    "AC and DC.",
+                    "DC and DC.",
+                    "DC and AC."
+                ],
+                correct: 3
+            },
+            {
+                id: 54,
+                text: "What is an advantage of a fly-by-wire system compared with a conventional flight control system?",
+                options: [
+                    "Weight saving",
+                    "Mach number reduction",
+                    "Flight envelope exceedance",
+                    "Profile drag reduction"
+                ],
+                correct: 0
+            },
+            {
+                id: 61,
+                text: "Assuming the initiating cause is removed, which of these statements about resetting are correct or incorrect? I.A fuse is not resettable II. A circuit breaker is resettable.",
+                options: [
+                    "I is incorrect, II is correct.",
+                    "I is correct, II is incorrect.",
+                    "I is correct, II is correct.",
+                    "I is incorrect, II is incorrect"
+                ],
+                correct: 2
+            },
+            {
+                id: 65,
+                text: "The FADEC of a gas turbine engine consists of:",
+                options: [
+                    "an electronic engine control unit and the engine display units in the cockpit.",
+                    "an electronic engine control unit only.",
+                    "all electronic engine control units installed on the aircraft.",
+                    "an electronic engine control unit and its peripherals (fuel metering, actuators, electrical wiring, sensors)."
+                ],
+                correct: 3
+            },
+            {
+                id: 68,
+                text: "The function of the rudder limiter system is:",
+                options: [
+                    "to limit pedal movement in heavy turbulence.",
+                    "to restrict the rudder deflection during flight at high Mach numbers.",
+                    "to reduce pilot's workload during engine failure.",
+                    "to restrict rudder deflection during flight at high IAS."
+                ],
+                correct: 3
+            },
+            {
+                id: 73,
+                text: "The electronic engine control of a FADEC gas turbine engine checks:",
+                options: [
+                    "output data only.",
+                    "all input and output data.",
+                    "ACTIVE CHANNEL input and output data only.",
+                    "input data only."
+                ],
+                correct: 1
+            },
+            {
+                id: 76,
+                text: "Assuming a constant speed drive (CSD) fault is indicated, the CSD should be disconnected:",
+                options: [
+                    "provided the engine is running.",
+                    "at flight idle engine rpm only.",
+                    "when the AC generator voltage is outside limits.",
+                    "on the ground only."
+                ],
+                correct: 0
+            },
+
+            {
+                id: 98,
+                text: "The power of a normally aspirated piston engine decreases during a climb with a constant power lever setting because of the..",
+                options: [
+                    "increasing air density.",
+                    "increasing engine temperature.",
+                    "decreasing air density.",
+                    "decreasing outside air temperature."
+                ],
+                correct: 2
+            },
+
+            {
+                id: 118,
+                text: "Holding procedure -- The outbound time for a holding pattern above 14000 ft in still air conditions is",
+                options: [
+                    "1 minute.",
+                    "2 minutes 30 seconds.",
+                    "1 minute 30 seconds.",
+                    "2 minutes."
+                ],
+                correct: 2
+            },
+            {
+                id: 123,
+                text: "Regarding runway characteristics, the clearway is..",
+                options: [
+                    "trapezoidal, and the inner width is twice that of the outer width.",
+                    "semi-circular, with a radius twice that of the runway width.",
+                    "rectangular, and it is located on the ground or on water.",
+                    "conical, with a total length at least half that of the TORA."
+                ],
+                correct: 2
+            },
+            {
+                id: 125,
+                text: "Ceiling is the height above the ground or water of the base of the lowest layer of cloud below 20 000 ft covering at least more than ______ the sky.",
+                options: [
+                    "1/2",
+                    "3/4",
+                    "1/4",
+                    "1/3"
+                ],
+                correct: 0
+            },
+            {
+                id: 126,
+                text: "What is the vertical separation minimum between FL290 and FL410 in RVSM airspace?",
+                options: [
+                    "300 m (1000 ft)",
+                    "1200 m (4000 ft)",
+                    "600 m (2000 ft)",
+                    "900 m (3000 ft)"
+                ],
+                correct: 0
+            },
+            {
+                id: 127,
+                text: "Required Navigation Performance (RNP) is a statement of the navigation performance necessary for..",
+                options: [
+                    "the clearance of obstacles in the approach sector.",
+                    "operation on aerodromes.",
+                    "the clearance of obstacles during take-off.",
+                    "operation within a defined airspace."
+                ],
+                correct: 3
+            },
+            {
+                id: 130,
+                text: "In the climb after take-off, the change from QNH to Standard Pressure Setting shall be made at..",
+                options: [
+                    "the transition layer.",
+                    "a level specified by ATC.",
+                    "the transition altitude.",
+                    "the transition level."
+                ],
+                correct: 2
+            },
+            {
+                id: 137,
+                text: "When flying on an airway with an easterly magnetic heading, the correct flight level will be..",
+                options: [
+                    "usually even.",
+                    "usually odd.",
+                    "always odd.",
+                    "always even."
+                ],
+                correct: 1
+            },
+            {
+                id: 140,
+                text: "What is the purpose of a missed approach procedure?",
+                options: [
+                    "It is designed to provide climb and direct an aircraft back to the initial approach fix (IAF).",
+                    "It is designed to minimize noise.",
+                    "It is designed to provide protection from obstacles.",
+                    "It is designed to climb above the minimum sector altitude (MSA)."
+                ],
+                correct: 2
+            },
+            {
+                id: 141,
+                text: "The acronym PAPI stands for..",
+                options: [
+                    "Precision Approach Power Indicator.",
+                    "Precision Approach Path Index.",
+                    "Precision Approach Power Index.",
+                    "Precision Approach Path Indicator."
+                ],
+                correct: 3
+            },
+            {
+                id: 144,
+                text: "The abbreviation \"MDA\" means:",
+                options: [
+                    "Minimum Decision Altitude",
+                    "Minimum Descent Attitude",
+                    "Maximum Drift Angle",
+                    "Minimum Descent Altitude"
+                ],
+                correct: 3
+            },
+            {
+                id: 145,
+                text: "The outbound time in a holding pattern at 14 000 ft or below, in still air conditions, is..",
+                options: [
+                    "1 minute.",
+                    "30 seconds.",
+                    "1 minute 30 seconds.",
+                    "2 minutes."
+                ],
+                correct: 0
+            },
+            {
+                id: 147,
+                text: "The stopway is located at the end of the?",
+                options: [
+                    "Take-Off Run Available (TORA).",
+                    "Accelerate-Stop Distance Available (ASDA).",
+                    "Landing Distance Available (LDA).",
+                    "Take-Off Distance Available (TODA)."
+                ],
+                correct: 0
+            },
+            {
+                id: 150,
+                text: "The Minimum Sector Altitudes (MSAs) provide an obstacle clearance of at least 300 m (1000 ft) within a circle, associated with the homing facility for the approach procedure of that aerodrome. -- The circle has a radius of..",
+                options: [
+                    "5 NM.",
+                    "20 NM.",
+                    "10 NM.",
+                    "25 NM."
+                ],
+                correct: 3
+            },
+            {
+                id: 151,
+                text: "What is the meaning of the abbreviation OCA?",
+                options: [
+                    "Obstruction clearance altitude",
+                    "Obstacle clearance altitude",
+                    "Oceanic clearance area",
+                    "Obstacle clearance area"
+                ],
+                correct: 1
+            },
+            {
+                id: 152,
+                text: "What does the abbreviation ATIS stand for?",
+                options: [
+                    "Automatic Terminal Instruction Service",
+                    "Automatic Terminal Information Status",
+                    "Automatic Terminal Information Service",
+                    "Automatic Transferable Information Service"
+                ],
+                correct: 2
+            },
+            {
+                id: 153,
+                text: "Take-off distance available (TODA) is the length of the..",
+                options: [
+                    "runway available plus the length of provided clearway.",
+                    "take-off run available plus the length of provided stopway.",
+                    "take-off run available plus the length of provided stopway and clearway.",
+                    "take-off run available plus the length of provided clearway."
+                ],
+                correct: 3
+            },
+            {
+                id: 154,
+                text: "The transition level is..",
+                options: [
+                    "the highest available flight level below the transition altitude that has been established.",
+                    "calculated and declared for an approach by the pilot-in command.",
+                    "the lowest flight level available for use above the transition altitude.",
+                    "published for each aerodrome in the AIP, Section MAP."
+                ],
+                correct: 2
+            },
+            {
+                id: 161,
+                text: "When does the pilot change from flight level to altitude?",
+                options: [
+                    "At the transition altitude.",
+                    "At the transition level.",
+                    "At or below the transition level.",
+                    "Below the transition level."
+                ],
+                correct: 1
+            },
+            {
+                id: 162,
+                text: "What is the preferred ILS glide path for a precision approach",
+                options: [
+                    "2.5%",
+                    "3 degrees",
+                    "5 degrees",
+                    "3%"
+                ],
+                correct: 1
+            },
+            {
+                id: 164,
+                text: "What does the abbreviation DER stand for?",
+                options: [
+                    "Displaced End of Runway.",
+                    "Distance Error in Routing.",
+                    "Departure End of Runway.",
+                    "Direct Entry Route."
+                ],
+                correct: 2
+            },
+            {
+                id: 165,
+                text: "A nautical mile is equivalent to:",
+                options: [
+                    "1012 metres",
+                    "1609 metres",
+                    "1500 metres",
+                    "1852 metres"
+                ],
+                correct: 3
+            },
+            {
+                id: 174,
+                text: "The transition layer is the airspace located..",
+                options: [
+                    "above the Transition Level.",
+                    "where the atmospheric pressure equals 1013.2 hPa.",
+                    "between the Transition Level and the Transition Altitude.",
+                    "below the Transition Altitude"
+                ],
+                correct: 2
+            },
+            {
+                id: 191,
+                text: "What is affected by a displaced threshold of an active runway?",
+                options: [
+                    "ASDA",
+                    "TORA",
+                    "TODA",
+                    "LDA"
+                ],
+                correct: 3
+            },
+            {
+                id: 198,
+                text: "In which of the following ATC clearances is the QNH altimeter setting included?",
+                options: [
+                    "In climb, when first cleared to an altitude above the transition level.",
+                    "In all climb or descent ATC clearances to an altitude.",
+                    "In all clearances to altitudes below 2000 ft above aerodrome level.",
+                    "In descent, when first cleared to an altitude below the transition level"
+                ],
+                correct: 3
+            },
+            {
+                id: 216,
+                text: "An aircraft shall display, if so equipped, an anti-collision light:",
+                options: [
+                    "on the ground when the engines are running.",
+                    "outside the daylight-period at engine-start. During the daylight-period this is not applicable.",
+                    "while taxiing, but not when it is being towed.",
+                    "outside the daylight-period in flight, but not on the ground when it is being towed."
+                ],
+                correct: 0
+            },
+            {
+                id: 226,
+                text: "Minimum level IFR. When not flying over high terrain or mountainous areas and where no minimum flight altitude has been established, flights in accordance with IFR shall be flown at a level which is at least:",
+                options: [
+                    "2 000 ft above the highest obstacle located within 8 km of the estimated position of the aircraft.",
+                    "1 000 ft above the highest obstacle located within 10 NM of the estimated position of the aircraft.",
+                    "2 000 ft above the highest obstacle located within 10 NM of the estimated position of the aircraft.",
+                    "1 000 ft above the highest obstacle located within 8 km of the estimated position of the aircraft."
+                ],
+                correct: 3
+            },
+            {
+                id: 234,
+                text: "Within RVSM airspace, between level FL 290 and FL 410, what is the vertical flight separation between RVSM approved aircraft?",
+                options: [
+                    "2000 ft",
+                    "4000 ft",
+                    "3000 ft",
+                    "1000 ft"
+                ],
+                correct: 3
+            },
+            {
+                id: 253,
+                text: "Who is responsible for an ATC clearance to be safe in respect to terrain clearance?",
+                options: [
+                    "The pilot in command.",
+                    "The air traffic service reporting office when accepting the flight plan.",
+                    "The ATC.",
+                    "The aircraft operator."
+                ],
+                correct: 0
+            },
+            {
+                id: 261,
+                text: "Describe where a radio-altimeter operating area should be established:",
+                options: [
+                    "A radio altimeter operating area should be established in the prethreshold area of a precision approach runway.",
+                    "A radio altimeter operating area should be established in the threshold area of any runway.",
+                    "A radio altimeter operating area should be established in the threshold area of a precision and non-precision approach runway.",
+                    "A radio altimeter operating area should be established in the whole runway area of a precision approach runway."
+                ],
+                correct: 0
+            },
+            {
+                id: 266,
+                text: "If more than 25 % of the runway is covered by 3mm of water, the runway is considered to be:",
+                options: [
+                    "Wet",
+                    "Contaminated",
+                    "Flooded",
+                    "Damp"
+                ],
+                correct: 1
+            },
+            {
+                id: 268,
+                text: "A specific point, measured and reported to the aeronautical information services authority in degrees, minutes and seconds, which normally corresponds to the geometric centre of an airport is:",
+                options: [
+                    "The aerodrome reference point.",
+                    "The threshold position of the runway.",
+                    "The position of the tower.",
+                    "The midpoint of the runway."
+                ],
+                correct: 0
+            },
+            
+            {
+                id: 286,
+                text: "Taxiway markings and aircraft stand markings are:",
+                options: [
+                    "white",
+                    "grey",
+                    "red",
+                    "yellow"
+                ],
+                correct: 3
+            },
+            {
+                id: 291,
+                text: "What is the colour of runway edge lights?",
+                options: [
+                    "Red",
+                    "Blue",
+                    "White",
+                    "Yellow"
+                ],
+                correct: 2
+            },
+            {
+                id: 324,
+                text: "For a category I precision approach the decision height cannot be lower than:",
+                options: [
+                    "200 ft.",
+                    "250 ft.",
+                    "150 ft.",
+                    "100 ft."
+                ],
+                correct: 0
+            },
+            {
+                id: 335,
+                text: "Where does the final approach segment for a precision approach start?",
+                options: [
+                    "FAH",
+                    "FAP",
+                    "IAF",
+                    "FAF"
+                ],
+                correct: 1
+            },
+            {
+                id: 339,
+                text: "Which of the following correctly defines aerodrome operating minima?",
+                options: [
+                    "Cloud base and ground visibility for takeoff.",
+                    "Cloud ceiling and RVR for takeoff.",
+                    "Cloud base and RVR for takeoff.",
+                    "Cloud ceiling and ground visibility for takeoff"
+                ],
+                correct: 2
+            },
+            {
+                id: 370,
+                text: "Given: Dry Operating Mass: 33 510 kg Traffic Load: 7600 kg Trip Fuel: 2040 kg Final Reserve Fuel: 983 kg Alternate Fuel: 1100 kg Contingency Fuel: 5 % Trip Fuel Which of the listed estimated masses is correct?",
+                options: [
+                    "Estimated Take-Off Mass = 45 233 kg",
+                    "Estimated Landing Mass at destination = 43 295 kg",
+                    "Estimated Take-Off Mass = 43 295 kg",
+                    "Estimated Landing Mass at destination = 43 193 kg"
+                ],
+                correct: 1
+            },
+            {
+                id: 380,
+                text: "You are to determine the maximum fuel load which can be carried in the following conditions: Dry Operating Mass: 2800 kg Trip Fuel: 300 kg Pay Load: 400 kg Maximum Take Off Mass: 3700 kg",
+                options: [
+                    "1200 kg",
+                    "500 kg",
+                    "1000 kg",
+                    "700 kg"
+                ],
+                correct: 1
+            },
+            {
+                id: 382,
+                text: "From which of the following would you expect to find information regarding known short unserviceability of VOR, TACAN, and NDB?",
+                options: [
+                    "AIP",
+                    "ATCC broadcasts",
+                    "SIGMET",
+                    "NOTAM"
+                ],
+                correct: 3
+            },
+            {
+                id: 384,
+                text: "Unless otherwise stated, on charts for standard instrument departures, the depicted routes are defined as:",
+                options: [
+                    "true headings.",
+                    "true courses.",
+                    "magnetic headings.",
+                    "magnetic courses."
+                ],
+                correct: 3
+            },
+            {
+                id: 417,
+                text: "A human breathing 100% oxygen at 33700 ft is the equivalent of breathing air at..",
+                options: [
+                    "sea level.",
+                    "10000 ft.",
+                    "8000 ft.",
+                    "21300 ft."
+                ],
+                correct: 0
+            },
+            {
+                id: 432,
+                text: "The atmosphere contains the following gases:",
+                options: [
+                    "78% nitrogen, 21% oxygen, 0.03% carbon dioxide, rest: rare gases.",
+                    "78% helium, 21% oxygen, 1% carbon monoxide, rest: rare gases.",
+                    "78% helium, 21% oxygen, 0.03% carbon dioxide, rest: rare gases.",
+                    "78% oxygen, 21% nitrogen, 1% carbon monoxide, rest: rare gases."
+                ],
+                correct: 0
+            },
+            {
+                id: 447,
+                text: "Hypoxia can be caused by..",
+                options: [
+                    "a lack of red blood cells in the blood or decreased ability of the haemoglobin to transport oxygen.",
+                    "an increase in the number of red blood cells in the blood, decreasing the ability of the haemoglobin to transport oxygen.",
+                    "increasing oxygen partial pressure used for the exchange of gases.",
+                    "a lack of white blood cells in the blood, decreasing the ability of the haemoglobin to transport carbon dioxide."
+                ],
+                correct: 0
+            },
+            {
+                id: 476,
+                text: "The symptoms of hypoxia include..",
+                options: [
+                    "visual disturbances, lack of concentration, euphoria.",
+                    "dizziness and hypothermia.",
+                    "dull headache and bends.",
+                    "nausea and barotitis."
+                ],
+                correct: 0
+            },
+            {
+                id: 481,
+                text: "Air at an altitude of 18000 feet contains approximately..",
+                options: [
+                    "10% oxygen.",
+                    "15% oxygen.",
+                    "5% oxygen.",
+                    "21% oxygen."
+                ],
+                correct: 3
+            },
+            {
+                id: 484,
+                text: "TUC (Time of Useful Consciousness) is..",
+                options: [
+                    "the length of time during which an individual can act with both mental and physical efficiency after pressure loss.",
+                    "the time after pressure loss until decompression sickness sets in.",
+                    "measured from the moment at which an individual starts being exposed to hypoxia and death.",
+                    "the time before becoming unconscious at a sudden pressure loss."
+                ],
+                correct: 0
+            },
+            {
+                id: 486,
+                text: "The percentage of oxygen in the air at an altitude of approximately 34000 ft is",
+                options: [
+                    "21%.",
+                    "10.5%.",
+                    "5%.",
+                    "42%."
+                ],
+                correct: 0
+            },
+            {
+                id: 562,
+                text: "What does the term \"way point\" mean:",
+                options: [
+                    "A defined position on an aerodrome used for the calibration of the inertial navigation system",
+                    "A signal indicating the direction of the runway-in-use",
+                    "A specified geographical position used to define an area navigation route or the flight path of an aircraft employing area navigation",
+                    "A general term meaning the taxiway- and the runway-system of an international airport"
+                ],
+                correct: 2
+            },
+            {
+                id: 576,
+                text: "On a METAR BROKEN means a cloud cover of:",
+                options: [
+                    "8 octas",
+                    "1-2 octas",
+                    "5-7 octas",
+                    "3-4 octas"
+                ],
+                correct: 2
+            },
+            {
+                id: 584,
+                text: "A departing aircraft experiencing radio communication failure on an IFR flight under radar vectors has to:",
+                options: [
+                    "Squawk 7600 and thereafter, regardless of any limitation instructed by ATC, return to the route indicated in the current flight plan on the shortest way",
+                    "Squawk 7600, maintain present heading for 1 minute and thereafter return to the route indicated in the current flight plan on the shortest way",
+                    "Squawk 7600 and maintain the heading last assigned by ATC for a period of 3 minutes and then return to the flight path in accordance with the current flight plan",
+                    "Squawk 7600 and thereafter return to the route indicated in the current flight plan in the most direct manner"
+                ],
+                correct: 3
+            },
+            {
+                id: 608,
+                text: "What does the abbrevation \"RNAV\" mean:",
+                options: [
+                    "Area navigation",
+                    "Radio navigation",
+                    "Radar aided navigation",
+                    "Route navigation"
+                ],
+                correct: 0
+            },
+            {
+                id: 644,
+                text: "A radiotelephony call sign for an aircraft shall be:",
+                options: [
+                    "the characters corresponding to the registration marking of the aircraft.",
+                    "the telephony designator of the aircraft operating agency, followed by the last four characters of the registration marking of the aircraft.",
+                    "the telephony designator of the aircraft operating agency, followed by the flight identification.",
+                    "All answers are correct."
+                ],
+                correct: 3
+            },
+            {
+                id: 728,
+                text: "The command bars of a flight director:",
+                options: [
+                    "are always displayed during take-off.",
+                    "are displayed only when flying manually.",
+                    "may be displayed when flying manually or with the autopilot engaged.",
+                    "are displayed only when the autopilot is engaged."
+                ],
+                correct: 2
+            },
+            {
+                id: 733,
+                text: "CAS is obtained from IAS by correcting for the:",
+                options: [
+                    "density.",
+                    "manoeuvring error.",
+                    "position and instrument errors.",
+                    "position and density errors."
+                ],
+                correct: 2
+            },
+            {
+                id: 736,
+                text: "The anticollision logic of a TCAS II is based on the following criteria:",
+                options: [
+                    "acceleration.",
+                    "time.",
+                    "distance.",
+                    "velocity"
+                ],
+                correct: 1
+            },
+            {
+                id: 743,
+                text: "When climbing at a constant Mach number:",
+                options: [
+                    "CAS decreases.",
+                    "CAS increases.",
+                    "CAS remains constant.",
+                    "difference between surrounding conditions and standard atmosphere must be known to deduce the CAS variation."
+                ],
+                correct: 0
+            },
+            {
+                id: 744,
+                text: "Due to its conception, the altimeter measures a:",
+                options: [
+                    "density altitude.",
+                    "true altitude.",
+                    "temperature altitude.",
+                    "pressure altitude"
+                ],
+                correct: 3
+            },
+            {
+                id: 750,
+                text: "The maximum range for indication of a radio altimeter is typically from the ground to:",
+                options: [
+                    "greater than 10 000 ft.",
+                    "10 000 ft.",
+                    "500 ft.",
+                    "2 500 ft."
+                ],
+                correct: 3
+            },
+            {
+                id: 757,
+                text: "Given: Pt = total pressure Ps = static pressure Pd = dynamic pressure",
+                options: [
+                    "Pd = Pt + Ps",
+                    "Ps = Pt + Pd",
+                    "Pt = Pd + Ps",
+                    "Pd = Pt / Ps"
+                ],
+                correct: 2
+            },
+            {
+                id: 767,
+                text: "In the northern hemisphere, accelerating in an easterly direction, a direct reading magnetic compass indicates:",
+                options: [
+                    "an apparent turn to the north.",
+                    "no apparent turn.",
+                    "an apparent turn to the south.",
+                    "no turn."
+                ],
+                correct: 0
+            },
+            {
+                id: 771,
+                text: "The magnetic variation:",
+                options: [
+                    "is caused by the different locations of the geographic North Pole and the magnetic North Pole.",
+                    "varies inversely with the bank angle of the aircraft.",
+                    "is caused by the inclination of the Earth's magnetic field lines.",
+                    "varies proportionally with the bank angle of the aircraft."
+                ],
+                correct: 0
+            },
+            {
+                id: 802,
+                text: "Total Air Temperature (TAT) is:",
+                options: [
+                    "higher or equal to Static Air Temperature (SAT)",
+                    "TAT is a function of altitude and SAT.",
+                    "Higher or equal to static air temperature (SAT), depending on altitude and SAT.",
+                    "lower than Static Air Temperature (SAT)"
+                ],
+                correct: 0
+            },
+            {
+                id: 811,
+                text: "An automatic landing system which can keep on operating without deterioration of its performances following the failure of one of the autopilots is called:",
+                options: [
+                    "fail operational.",
+                    "fail passive.",
+                    "fail soft.",
+                    "fail redundant."
+                ],
+                correct: 0
+            },
+            {
+                id: 813,
+                text: "The Mach number is the:",
+                options: [
+                    "EAS divided by the local speed of sound.",
+                    "CAS divided by the local speed of sound.",
+                    "IAS divided by the local speed of sound.",
+                    "TAS divided by the local speed of sound."
+                ],
+                correct: 3
+            },
+            {
+                id: 831,
+                text: "A VSI can have the following errors, Which ones are correct? 1-Blocked static port 2-Temperature error 3-Instrument error 4-Barometric error 5-Time lag 6-Position error 7-Blocked pitot probe",
+                options: [
+                    "1,3,5,6.",
+                    "1,4,6,7.",
+                    "1,2,5,6.",
+                    "1,2,4,7."
+                ],
+                correct: 0
+            },
+            {
+                id: 836,
+                text: "The purpose of the auto-trim function in an autopilot is to",
+                options: [
+                    "tell the pilot when elevator trimming is required.",
+                    "control the elevator trim tab in order to relieve elevator load.",
+                    "help the autopilot to compensate for crosswind influence.",
+                    "trim the throttles to obtain smooth engine-power variation."
+                ],
+                correct: 1
+            },
+            {
+                id: 838,
+                text: "When flying in cold air (colder than standard atmosphere), indicated altitude is:",
+                options: [
+                    "the same as the true altitude.",
+                    "lower than the true altitude.",
+                    "higher than the true altitude.",
+                    "equal to the standard altitude."
+                ],
+                correct: 2
+            },
+            {
+                id: 847,
+                text: "A Mach trim system..",
+                options: [
+                    "is activated by the pilot when reaching the limiting Mach number to trim attitude.",
+                    "compensates for Mach tuck by trimming the stabiliser down.",
+                    "compensates for Mach tuck caused by the rearward movement of the shock wave as an aircraft accelerates.",
+                    "compensates for the forward movement of the centre of pressure, due to the forward movement of the shock wave, as speed increases."
+                ],
+                correct: 2
+            },
+
+            {
+                id: 854,
+                text: "What is the tropopause?",
+                options: [
+                    "The layer between the troposphere and the stratosphere.",
+                    "Upper boundary of C.A.T.",
+                    "Where temperature increases with height.",
+                    "The boundary between the troposphere and the stratosphere."
+                ],
+                correct: 0
+            },
+            {
+                id: 856,
+                text: "The temperature lapse rate of the ICAO standard atmosphere in the troposphere is:",
+                options: [
+                    "2.5°C/1000 FT",
+                    "6.5°C/1000 FT",
+                    "3°C/1000 FT",
+                    "2°C/1000 FT"
+                ],
+                correct: 1
+            },
+            {
+                id: 855,
+                text: "The tropopause is lower",
+                options: [
+                    "south of the equator than north of it",
+                    "in summer than winter in moderate latitudes",
+                    "over the North Pole than over the equator",
+                    "over the equator than over the South Pole"
+                ],
+                correct: 2
+            },
+            {
+                id: 860,
+                text: "What is the primary cause of all changes in the Earth's weather?",
+                options: [
+                    "None of the other answers are correct.",
+                    "Movement of air masses from moist areas to dry areas.",
+                    "Variation of solar energy at the Earth's surface.",
+                    "Changes in air pressure over the Earth's surface."
+                ],
+                correct: 2
+            },
+            {
+                id: 864,
+                text: "QNH is defined as",
+                options: [
+                    "QFE reduced to MSL using the values of the actual atmosphere",
+                    "pressure at MSL in the standard atmosphere",
+                    "pressure at MSL in the actual atmosphere",
+                    "QFE reduced to MSL using the values of the standard atmosphere"
+                ],
+                correct: 3
+            },
+            {
+                id: 869,
+                text: "What is meant by the term \"altitude\"?",
+                options: [
+                    "The vertical distance of a level or a point measured from mean sea level.",
+                    "The vertical distance of a level or a point measured from the earth's surface.",
+                    "Altimeter indication when altimeter subscale is set to present QFE.",
+                    "The vertical distance of a level or a point measured from the aerodrome reference point."
+                ],
+                correct: 0
+            },
+            {
+                id: 878,
+                text: "Dew point is defined as",
+                options: [
+                    "the lowest temperature to which air must be cooled in order to reduce the relative humidity",
+                    "the lowest temperature at which evaporation will occur for a given pressure",
+                    "the temperature below which the change of state in a given volume of air will result in the absorption of latent heat",
+                    "the temperature to which moist air must be cooled to become saturated at a given pressure"
+                ],
+                correct: 3
+            },
+            {
+                id: 880,
+                text: "What is condensation?",
+                options: [
+                    "The change of state from ice to water vapour or from water vapour to ice.",
+                    "The change of state from water to water vapour.",
+                    "The change of state from water vapour to water.",
+                    "The change of state from ice to water."
+                ],
+                correct: 2
+            },
+            {
+                id: 882,
+                text: "An inversion is:",
+                options: [
+                    "a conditionally unstable layer.",
+                    "a layer that can be either stable or unstable.",
+                    "an absolutely stable layer.",
+                    "an unstable layer."
+                ],
+                correct: 2
+            },
+            {
+                id: 889,
+                text: "Where do you find information on ICING and CAT?",
+                options: [
+                    "METAR",
+                    "SWC and SIGMET",
+                    "TAF",
+                    "Analysis chart"
+                ],
+                correct: 1
+            },
+            {
+                id: 895,
+                text: "At the surface the lifetime of a typical microburst and the diameter of the area affected by damaging winds are in the order of:",
+                options: [
+                    "5 - 15 minutes and 8 km",
+                    "1 - 5 minutes and 4 km",
+                    "30 - 40 minutes and 4 km",
+                    "5 - 10 minutes and 12 km"
+                ],
+                correct: 1
+            },
+            {
+                id: 899,
+                text: "Lenticular clouds in mountainous areas indicate:",
+                options: [
+                    "an inversion.",
+                    "unstable air.",
+                    "turbulence.",
+                    "light variable winds."
+                ],
+                correct: 2
+            },
+            {
+                id: 903,
+                text: "What is a land breeze?",
+                options: [
+                    "Air moving from sea over land by night.",
+                    "Air moving from land over sea by day.",
+                    "Air moving from land over water at night.",
+                    "Air moving from sea over land by day."
+                ],
+                correct: 2
+            },
+            {
+                id: 907,
+                text: "What is a microburst?",
+                options: [
+                    "A concentrated downdraft with high speeds and a higher temperature than the surrounding air.",
+                    "A concentrated downdraft with high speeds and, generally, a lower temperature than the surrounding air.",
+                    "An extremely strong wind gust in a tropical revolving storm.",
+                    "A small low pressure system where the wind circulates with very high speeds."
+                ],
+                correct: 1
+            },
+            {
+                id: 913,
+                text: "Which of the following types of cloud can extend over the low, medium and high cloud levels ?",
+                options: [
+                    "ST",
+                    "CI",
+                    "AC",
+                    "CB"
+                ],
+                correct: 3
+            },
+            {
+                id: 914,
+                text: "Fallstreaks or virga are",
+                options: [
+                    "strong downdraughts in the polar jet stream, associated with jet streaks",
+                    "water or ice particles falling out of a cloud that evaporate before reaching the ground",
+                    "gusts associated with a well developed Bora",
+                    "strong katabatic winds in mountainous areas and accompanied by heavy precipitation"
+                ],
+                correct: 1
+            },
+            {
+                id: 929,
+                text: "A super-cooled droplet is",
+                options: [
+                    "a water droplet that has been frozen during its descent",
+                    "a water droplet that is mainly frozen",
+                    "a small particle of water at a temperature below -50°C",
+                    "a droplet still in liquid state at a temperature below 0°C"
+                ],
+                correct: 3
+            },
+            {
+                id: 937,
+                text: "Thunderstorms reach their greatest intensity during the",
+                options: [
+                    "dissipating stage.",
+                    "period in which precipitation is not falling.",
+                    "cumulus stage.",
+                    "Mature stage."
+                ],
+                correct: 3
+            },
+            {
+                id: 940,
+                text: "The final stage of a thunderstorm is reached when:",
+                options: [
+                    "No further electrical charge is developed.",
+                    "All of the above.",
+                    "A well developed anvil can be seen.",
+                    "The lower portion of the cloud dissipates."
+                ],
+                correct: 1
+            },
+            {
+                id: 957,
+                text: "Icing and raindrops on the wings of an aircraft normally causes:",
+                options: [
+                    "The stalling speed to increase.",
+                    "The interference drag to increase.",
+                    "The interference drag to decrease.",
+                    "The stalling speed to decrease."
+                ],
+                correct: 0
+            },
+            {
+                id: 979,
+                text: "Fog (FG) is defined as being a :",
+                options: [
+                    "Visibility of < 1,000 m due to any precipitation in the atmosphere.",
+                    "Visibility of < 1,000 m due to solid or liquid particles suspended in the atmosphere.",
+                    "Visibility of < 1,000 m due to liquid particles or ice crystals suspended in the atmosphere.",
+                    "Visibility of <= 1,000 due to liquid particles or ice crystals suspended in the atmosphere."
+                ],
+                correct: 2
+            },
+            {
+                id: 992,
+                text: "In which of the following METAR reports is the probability of fog formation in the coming night the highest?",
+                options: [
+                    "201850Z 15003KT 6000 SCT120 05/04 Q1032 BECMG 1600 BR=",
+                    "201850Z 25010KT 4000 RA BKN012 OVC030 12/10 Q1006 TEMPO 1500=",
+                    "201850Z 06018G30KT 5000 -RA OVC010 04/01 Q1024 NOSIG=",
+                    "201850Z 21003KT 8000 SCT250 12/m08 Q1028 NOSIG="
+                ],
+                correct: 0
+            },
+            {
+                id: 993,
+                text: "What is a trend forecast?",
+                options: [
+                    "A landing forecast appended to METAR/SPECI, valid for 2 hours",
+                    "An aerodrome forecast valid for 9 hours",
+                    "A route forecast valid for 24 hours",
+                    "A routine report"
+                ],
+                correct: 0
+            },
+            {
+                id: 998,
+                text: "How is a ceiling defined?",
+                options: [
+                    "Height above ground or water of the lowest layer of cloud below 20000 ft covering more than half of the sky.",
+                    "Height above ground or water of the lowest layer of cloud that contributes to the overall overcast.",
+                    "Height above ground or water of the highest layer of cloud or obscuring phenomena aloft that covers 4 oktas or more of the sky.",
+                    "Height above ground or water of the lowest layer of cloud independent on the amount of clouds."
+                ],
+                correct: 0
+            },
+            {
+                id: 1000,
+                text: "What type of meteorological hazard to safe flight is most likely to be experienced during the final approach to Geneva (ETA 1200 UTC) ? TAF LSGG 020900Z 021019 18007KT 9999 SCT020 BKN100 BECMG 1114 8000 RA SCT010 OVC020 PROB30 TEMPO 1018 VRB10G25KT TSRA",
+                options: [
+                    "Anabatic winds",
+                    "Roll cloud associated with standing waves",
+                    "Radiation fog",
+                    "Low level wind shear"
+                ],
+                correct: 3
+            },
+            {
+                id: 1001,
+                text: "In TAF and METAR decodes, DU, DZ and DS mean respectively:",
+                options: [
+                    "dust, drizzle, dust and sand.",
+                    "dust, drizzle, dust storms.",
+                    "dust, dust devils, dust storms.",
+                    "dust devils, drizzle, dust and sand."
+                ],
+                correct: 1
+            },
+            {
+                id: 1022,
+                text: "The meaning of RVR is:",
+                options: [
+                    "Cross-wind component.",
+                    "Braking action.",
+                    "Runway visual range.",
+                    "Meteorological visibility."
+                ],
+                correct: 2
+            },
+            {
+                id: 1032,
+                text: "What does the abbreviation \"nosig\" mean?",
+                options: [
+                    "No report received",
+                    "No weather related problems",
+                    "Not signed by the meteorologist",
+                    "No significant changes"
+                ],
+                correct: 3
+            },
+            {
+                id: 1051,
+                text: "The pressure at sea level in the ISA is:",
+                options: [
+                    "1012.35 hPa",
+                    "29.95 in Hg",
+                    "1013.25 hPa",
+                    "1025.13 hPa"
+                ],
+                correct: 2
+            },
+            {
+                id: 1059,
+                text: "A temperature increase with altitude through a layer is called:",
+                options: [
+                    "Unstable air.",
+                    "An extension.",
+                    "An inversion.",
+                    "Heating aloft."
+                ],
+                correct: 2
+            },
+            {
+                id: 1067,
+                text: "The QNH of an airport at sea level is 983 hPa and the temperature deviation from ISA is -15°C below FL 100. What is the true altitude of FL 100?",
+                options: [
+                    "11460 ft",
+                    "8640 ft",
+                    "10160 ft",
+                    "9740 ft"
+                ],
+                correct: 1
+            },
+            {
+                id: 1092,
+                text: "How do air masses move at a warm front ?",
+                options: [
+                    "Cold air undercuts a warm air mass",
+                    "Warm air overrides a cold air mass",
+                    "Cold air overrides a warm air mass",
+                    "Warm air undercuts a cold air mass"
+                ],
+                correct: 1
+            },
+            {
+                id: 1097,
+                text: "The heat of the earth is transferred upwards largely by:",
+                options: [
+                    "Radiation",
+                    "Conduction.",
+                    "Convection.",
+                    "Insolation."
+                ],
+                correct: 0
+            },
+            {
+                id: 1110,
+                text: "Which of the following conditions are you most likely to encounter when approaching an active warm front at medium to low level ?",
+                options: [
+                    "High cloud base, good surface visibility, and isolated thunderstorms.",
+                    "Extreme turbulence and severe lightning striking the ground.",
+                    "Severe thunderstorms at low altitude.",
+                    "Low cloud base and poor visibility."
+                ],
+                correct: 3
+            },
+            {
+                id: 1145,
+                text: "Cumulus clouds are an indication for",
+                options: [
+                    "up and downdrafts",
+                    "stability",
+                    "the approach of a warm front",
+                    "the approach of a cold front"
+                ],
+                correct: 0
+            },
+            {
+                id: 1157,
+                text: "High clouds are normally composed of:",
+                options: [
+                    "Water droplets.",
+                    "Ice crystals.",
+                    "Hail.",
+                    "Condensation nuclei."
+                ],
+                correct: 1
+            },
+            {
+                id: 1176,
+                text: "Where is icing most likely to form on an aircraft's profile?",
+                options: [
+                    "on an area where the stagnation point is located",
+                    "on an area where you have the highest static pressure",
+                    "on an area where you have the lowest static pressure",
+                    "on an area where the centre of pressure is located"
+                ],
+                correct: 0
+            },
+            {
+                id: 1191,
+                text: "When is the RVR reported at most airports?",
+                options: [
+                    "When the RVR decreases below 2500 m.",
+                    "When the RVR decreases below 2000 m.",
+                    "When the visibility decreases below 2000 m.",
+                    "When the visibility decreases below 1500 m."
+                ],
+                correct: 3
+            },
+            {
+                id: 1211,
+                text: "At a given configuration, the wake turbulence of an aeroplane is greater when the aeroplane is:",
+                options: [
+                    "heavy at high airspeed.",
+                    "light at low airspeed.",
+                    "heavy at low airspeed.",
+                    "light at high airspeed."
+                ],
+                correct: 2
+            },
+            {
+                id: 1226,
+                text: "If cabin altitude increases during level flight, the differential pressure:",
+                options: [
+                    "increases",
+                    "decreases",
+                    "remains constant",
+                    "attains its maximum permitted operating limit"
+                ],
+                correct: 1
+            },
+            {
+                id: 1227,
+                text: "The MMEL (Master Minimum Equipment List) is drawn up by:",
+                options: [
+                    "the national authority of state of the operator.",
+                    "the aircraft manufacturer.",
+                    "the aircraft state of registry.",
+                    "the operator."
+                ],
+                correct: 1
+            },
+            {
+                id: 1234,
+                text: "To avoid wake turbulence, when flying behind and close to a large aeroplane, the pilot should manoeuvre whenever possible:",
+                options: [
+                    "above and downwind from the large aeroplane.",
+                    "below and downwind from the large aeroplane.",
+                    "above and upwind from the large aeroplane.",
+                    "below and upwind from the large aeroplane."
+                ],
+                correct: 2
+            },
+            {
+                id: 1270,
+                text: "The type of hydroplaning that is most likely to occur at the touchdown area located at both ends of the runway is called:",
+                options: [
+                    "rubber reversion.",
+                    "rubber steaming.",
+                    "dynamic.",
+                    "viscous."
+                ],
+                correct: 3
+            },
+            {
+                id: 1283,
+                text: "The accumulation of frost, snow or ice on an aeroplane in flight induces, amongst other serious consequences, an increase in the:",
+                options: [
+                    "roll rate",
+                    "stalling speed",
+                    "tuck under",
+                    "value of the stall angle of attack"
+                ],
+                correct: 1
+            },
+            {
+                id: 1322,
+                text: "A category I precision approach (CAT I) has:",
+                options: [
+                    "a decision height not less than 200 ft.",
+                    "a decision height between 100 and 200 ft.",
+                    "a decision height between 100 and 300 ft.",
+                    "no decision height."
+                ],
+                correct: 0
+            },
+            {
+                id: 1345,
+                text: "A highly concentrated and powerful downdraft of air typically less than 5 km across that lasts for 1 to 5 minutes is..",
+                options: [
+                    "a microburst.",
+                    "a turbulent boundary layer.",
+                    "an inversion.",
+                    "a gust front."
+                ],
+                correct: 0
+            },
+            {
+                id: 1393,
+                text: "According to OPS regulations, a Category I operation is a precision instrument approach and landing with a decision height (DH) and with a runway visual range (RVR) not less than..",
+                options: [
+                    "100 ft / 350 m",
+                    "200 ft / 350 m",
+                    "200 ft / 550 m",
+                    "100 ft / 550 m"
+                ],
+                correct: 2
+            },
+            {
+                id: 1413,
+                text: "Wind shear is:",
+                options: [
+                    "a variation in vertical or horizontal wind velocity and / or wind direction over a large distance.",
+                    "a large variation in vertical or horizontal wind velocity and / or wind direction over a short distance.",
+                    "a variation only in vertical wind velocity over a short distance.",
+                    "a variation only in horizontal wind velocity over a short distance."
+                ],
+                correct: 1
+            },
+            {
+                id: 1424,
+                text: "Which of the alternatives represents the correct relationship?",
+                options: [
+                    "VMCG and V1 should not exceed VR.",
+                    "VMCL and V1 should not exceed VR.",
+                    "V2 and V1 should not exceed VMCG.",
+                    "VMCA and VR should not exceed V1."
+                ],
+                correct: 0
+            },
+            {
+                id: 1430,
+                text: "The induced drag of an aeroplane:",
+                options: [
+                    "is independent of the airspeed.",
+                    "decreases with increasing gross weight.",
+                    "increases with increasing airspeed.",
+                    "decreases with increasing airspeed."
+                ],
+                correct: 3
+            },
+            {
+                id: 1431,
+                text: "The stopway is an area which allows an increase only in the:",
+                options: [
+                    "take-off distance available.",
+                    "landing distance available.",
+                    "accelerate-stop distance available.",
+                    "take-off run available."
+                ],
+                correct: 2
+            },
+            {
+                id: 1435,
+                text: "If air density increases, the take-off distance required / landing distance required will..",
+                options: [
+                    "decrease / decrease.",
+                    "increase / decrease.",
+                    "increase / increase.",
+                    "decrease / increase."
+                ],
+                correct: 0
+            },
+            {
+                id: 1436,
+                text: "How does a change in Pressure Altitude influence the Landing Distance and Ground Roll Distance?",
+                options: [
+                    "Higher Pressure Altitude results in a decreased Landing Distance Required and a decreased Ground Roll Distance.",
+                    "Lower Pressure Altitude results in a decreased Landing Distance Required and an increased Ground Roll Distance.",
+                    "Higher Pressure Altitude results in an increased Landing Distance Required and an increased Ground Roll Distance.",
+                    "Lower Pressure Altitude results in an increased Landing Distance Required and a decreased Ground Roll Distance."
+                ],
+                correct: 2
+            },
+            {
+                id: 1439,
+                text: "Stepped climbs are used on long-distance flights:",
+                options: [
+                    "only if the headwind is less or the tailwind is greater than forecast at high altitude.",
+                    "to fly as close to the tropopause as possible.",
+                    "to fly a profile as close as possible to the optimum altitude as the aeroplane mass reduces.",
+                    "for piston-engined aeroplanes only not for jet aeroplanes."
+                ],
+                correct: 2
+            },
+            {
+                id: 1440,
+                text: "The speed V1 is defined as:",
+                options: [
+                    "take off climb speed.",
+                    "take off decision speed.",
+                    "engine failure speed.",
+                    "speed for best angle of climb."
+                ],
+                correct: 1
+            },
+            {
+                id: 1442,
+                text: "The optimum cruise altitude increases",
+                options: [
+                    "if the tailwind component is decreased.",
+                    "if the aeroplane mass is increased.",
+                    "if the aeroplane mass is decreased.",
+                    "if the temperature OAT is increased."
+                ],
+                correct: 2
+            },
+            {
+                id: 1450,
+                text: "What effect does temperature have on the performance limited take-off mass?",
+                options: [
+                    "Falling temperatures will require a lower performance limited take-off mass.",
+                    "A change in temperature does not affect the performance limited take-off mass.",
+                    "Rising temperatures will lower the performance limited takeoff mass.",
+                    "Rising temperatures will permit a higher performance limited take-off mass."
+                ],
+                correct: 2
+            },
+            {
+                id: 1452,
+                text: "What percentages of the head wind and tail wind component are taken into account when calculating the take-off field length required?",
+                options: [
+                    "not more than 50% head wind and not less than 100% tail wind.",
+                    "not more than 50% head wind and not less than 150% tail wind.",
+                    "100% head wind and 100% tail wind.",
+                    "not less than 150% head wind and not more than 50% tail wind"
+                ],
+                correct: 1
+            },
+            {
+                id: 1464,
+                text: "During a descent with constant Mach number below the tropopause in ISA conditions, how do the TAS and CAS change? TAS",
+                options: [
+                    "decreases, and CAS increases.",
+                    "increases, and CAS decreases.",
+                    "increases, and CAS increases.",
+                    "decreases, and CAS decreases."
+                ],
+                correct: 2
+            },
+            {
+                id: 1472,
+                text: "Compared to a dry V1 speed, a wet V1 is:",
+                options: [
+                    "Higher, because on a wet runway an aircraft requires a shorter distance to stop in the event of an aborted take-off.",
+                    "Lower, because on a wet runway an aircraft takes longer to stop in the event of an aborted take-off.",
+                    "Lower, because aircraft can reach higher speeds on wet runways.",
+                    "The V1 speed is the same for both runways"
+                ],
+                correct: 1
+            },
+
+            {
+                id: 1478,
+                text: "Moving the CG from an aft to a forward position during flight will",
+                options: [
+                    "decrease fuel consumption and decrease the aircraft's longitudinal stability.",
+                    "increase fuel consumption and decrease the aircraft's longitudinal stability.",
+                    "decrease fuel consumption and increase the aircraft's longitudinal stability.",
+                    "increase fuel consumption and increase the aircraft's longitudinal stability."
+                ],
+                correct: 3
+            },
+            {
+                id: 1480,
+                text: "All other criteria being equal, what factor can reduce the landing distance?",
+                options: [
+                    "Landing on an airfield at a higher altitude.",
+                    "The use of spoilers.",
+                    "A tailwind component.",
+                    "A wet runway."
+                ],
+                correct: 1
+            },
+            {
+                id: 1506,
+                text: "How do lift and drag change during the take-off roll?",
+                options: [
+                    "Lift increases, and drag decreases.",
+                    "Lift is zero, and drag increases.",
+                    "Lift remains constant, and drag increases.",
+                    "Lift and drag increase."
+                ],
+                correct: 3
+            },
+            {
+                id: 1518,
+                text: "The centre of gravity location of the aeroplane is normally computed along the:",
+                options: [
+                    "vertical axis.",
+                    "horizontal axis.",
+                    "longitudinal axis.",
+                    "lateral axis."
+                ],
+                correct: 2
+            },
+            {
+                id: 1528,
+                text: "The traffic load is a part of the..",
+                options: [
+                    "Basic Empty Mass.",
+                    "Dry Operating Mass.",
+                    "Zero Fuel Mass.",
+                    "Operating Mass."
+                ],
+                correct: 2
+            },
+            {
+                id: 1532,
+                text: "The Centre of Gravity of a body is that point..",
+                options: [
+                    "which is used as the datum for computing moments.",
+                    "where the sum of the moments from the external forces acting on the body is equal to zero.",
+                    "where the sum of the external forces is equal to zero.",
+                    "through which the sum of the forces of all masses of the body is considered to act."
+                ],
+                correct: 3
+            },
+            {
+                id: 1533,
+                text: "Take-Off Mass minus Trip Fuel Mass results in the:",
+                options: [
+                    "Reserve Fuel Mass.",
+                    "Landing Mass.",
+                    "Taxi Mass.",
+                    "Zero Fuel Mass."
+                ],
+                correct: 1
+            },
+            {
+                id: 1562,
+                text: "If a clearway is provided, its length is part of the..",
+                options: [
+                    "Accelerate-Stop Distance Available (ASDA).",
+                    "Take-Off Runway Available (TORA).",
+                    "Landing Distance Available (LDA).",
+                    "Take-Off Distance Available (TODA)."
+                ],
+                correct: 3
+            },
+            {
+                id: 1566,
+                text: "Fuel tanks are fitted with baffles to..",
+                options: [
+                    "prevent spanwise fuel motion during constant sideslip.",
+                    "damp spanwise fuel motion in the tanks.",
+                    "assist in cooling the fuel.",
+                    "remove air bubbles from the fuel."
+                ],
+                correct: 1
+            },
+            {
+                id: 1567,
+                text: "The fuel cross-feed system..",
+                options: [
+                    "is only used to feed an engine from a tank in the opposite wing.",
+                    "allows feeding of any engine from any fuel tank.",
+                    "is only used on the ground for fuel transfer from one tank to another.",
+                    "is only used in flight for fuel transfer from one tank to another."
+                ],
+                correct: 1
+            },
+            {
+                id: 1568,
+                text: "If the static intakes are completely clogged up by ice during a climb, the VSI shows:",
+                options: [
+                    "zero.",
+                    "a constant rate of climb, even if the aircraft is levelling out.",
+                    "an increasing rate of climb if the ambient static pressure decreases.",
+                    "a descent if the outside static pressure is less than the pressure in the VSI-gauge."
+                ],
+                correct: 0
+            },
+            {
+                id: 1572,
+                text: "A rectifier is used to:",
+                options: [
+                    "change AC to DC.",
+                    "change DC to AC.",
+                    "decrease voltage.",
+                    "increase voltage."
+                ],
+                correct: 0
+            },
+            {
+                id: 1581,
+                text: "The engine air intakes of large transport aircraft are usually protected against ice by..",
+                options: [
+                    "hot bleed air.",
+                    "hot engine oil.",
+                    "pressurised fluid.",
+                    "inflatable boots."
+                ],
+                correct: 0
+            },
+            {
+                id: 1583,
+                text: "High aspect ratio, as compared with low aspect ratio, has the effect of:",
+                options: [
+                    "increasing lift and drag.",
+                    "increasing lift and critical angle of attack.",
+                    "increasing induced drag and decreasing critical angle of attack.",
+                    "decreasing induced drag and critical angle of attack."
+                ],
+                correct: 3
+            },
+            {
+                id: 1585,
+                text: "Which statement, about an aeroplane leaving ground effect at constant angle of attack, is correct? I. The lift coefficient CL decreases. II. The induced drag coefficient CDi remains constant.",
+                options: [
+                    "I is incorrect, II is incorrect.",
+                    "I is correct, II is correct.",
+                    "I is incorrect, II is correct.",
+                    "I is correct, II is incorrect."
+                ],
+                correct: 3
+            },
+            {
+                id: 1593,
+                text: "Slats are...",
+                options: [
+                    "More beneficial than the flaps regarding the effect on the stall speed.",
+                    "Located at the trailing edge of the wing.",
+                    "High lift devices which decrease the stalling angle of attack.",
+                    "Less beneficial than the flaps regarding the effect on the stall speed."
+                ],
+                correct: 0
+            },
+            {
+                id: 1599,
+                text: "What is the minimum speed for a wind to be classified as a jet stream?",
+                options: [
+                    "70 kt.",
+                    "100 kt.",
+                    "50 kt.",
+                    "60 kt."
+                ],
+                correct: 3
+            },
+            {
+                id: 1603,
+                text: "The angle of attack of an aerofoil section is the angle between the..",
+                options: [
+                    "camber line and the horizontal.",
+                    "chord line and the bottom surface of the aerofoil.",
+                    "camber line and the downwash.",
+                    "chord line and the relative undisturbed airflow."
+                ],
+                correct: 3
+            },
+            {
+                id: 1614,
+                text: "What are the primary roll controls on a conventional aeroplane?",
+                options: [
+                    "The rudder.",
+                    "Symmetrically deflected spoilers.",
+                    "The ailerons.",
+                    "Asymmetrically extended leading edge flaps."
+                ],
+                correct: 2
+            },
+            {
+                id: 1617,
+                text: "The function of ailerons is to rotate the aeroplane about the:",
+                options: [
+                    "longitudinal axis.",
+                    "normal axis.",
+                    "lateral axis.",
+                    "yaw axis."
+                ],
+                correct: 0
+            },
+            {
+                id: 1630,
+                text: "What is the purpose of vortex generators?",
+                options: [
+                    "To increase the kinetic energy of the boundary layer.",
+                    "To increase high-speed buffet due to shock wave formation.",
+                    "To reduce the aerofoil's critical Angle Of Attack.",
+                    "To promote an earlier separation of the boundary layer."
+                ],
+                correct: 0
+            },
+            {
+                id: 1640,
+                text: "Static pressure acts:",
+                options: [
+                    "in all directions.",
+                    "only perpendicular to the direction of the flow.",
+                    "only in the direction of the total pressure.",
+                    "only in the direction of the flow."
+                ],
+                correct: 0
+            },
+            {
+                id: 1644,
+                text: "Which of the following combinations is likely to result in the most accurate Area Navigation (RNAV) fixes?",
+                options: [
+                    "VOR/DME",
+                    "VOR/VOR",
+                    "NDB/VOR",
+                    "DME/DME"
+                ],
+                correct: 3
+            },
+            {
+                id: 1646,
+                text: "An aeroplane's angle of incidence is defined as the angle between the:",
+                options: [
+                    "longitudinal axis and the wing root chord line.",
+                    "speed vector and longitudinal axis.",
+                    "longitudinal axis and the horizontal plane.",
+                    "speed vector and the horizontal plane."
+                ],
+                correct: 0
+            },
+            {
+                id: 1654,
+                text: "Rotation around the lateral axis is called:",
+                options: [
+                    "pitching",
+                    "rolling",
+                    "slipping",
+                    "yawing."
+                ],
+                correct: 0
+            },
+            {
+                id: 1663,
+                text: "The Mach number is the ratio between the:",
+                options: [
+                    "IAS of the aeroplane and the speed of sound at sea level.",
+                    "TAS of the aeroplane and the speed of sound at sea level.",
+                    "IAS of the aeroplane and the speed of sound of the undisturbed flow.",
+                    "TAS of the aeroplane and the speed of sound of the undisturbed flow."
+                ],
+                correct: 3
+            },
+            {
+                id: 1678,
+                text: "The angle between the aeroplane longitudinal axis and the wing root chord line is the:",
+                options: [
+                    "flight path angle.",
+                    "angle of attack.",
+                    "angle of incidence.",
+                    "glide angle."
+                ],
+                correct: 2
+            },
+            {
+                id: 1689,
+                text: "The highest value of the CL/CD ratio of an aeroplane is obtained:",
+                options: [
+                    "in the configuration where both the leading and trailing edge flaps are fully extended.",
+                    "in the configuration where only the trailing edge flaps are fully extended.",
+                    "in the clean configuration.",
+                    "in the configuration where only the leading edge slats are fully extended."
+                ],
+                correct: 2
+            },
+            {
+                id: 1714,
+                text: "The primary purpose of dihedral is to:",
+                options: [
+                    "increase dynamic stability.",
+                    "increase static lateral stability.",
+                    "increase static directional stability.",
+                    "decrease sensitivity to Dutch roll."
+                ],
+                correct: 1
+            },
+            {
+                id: 1721,
+                text: "The effect of increasing angle of sweep is:",
+                options: [
+                    "a decrease in stall speed.",
+                    "an increase in longitudinal stability.",
+                    "an increase in the critical Mach number.",
+                    "a decrease in the critical Mach number."
+                ],
+                correct: 2
+            },
+            {
+                id: 1749,
+                text: "An aeroplane leaving the ground effect after take-off will experience..",
+                options: [
+                    "an increase in induced drag.",
+                    "a reduction in wing-tip vortices.",
+                    "a nose-down pitching moment.",
+                    "an increase in form drag."
+                ],
+                correct: 0
+            },
+            {
+                id: 1750,
+                text: "The increase in stall speed (IAS) with increasing altitude is due to:",
+                options: [
+                    "the larger angle of attack necessary in lower-density air to obtain the same lift as at sea level.",
+                    "exceedance of MCRIT.",
+                    "an increase in TAS.",
+                    "compressibility effects."
+                ],
+                correct: 3
+            },
+            {
+                id: 1759,
+                text: "Skin friction drag is caused by the..",
+                options: [
+                    "air's viscosity producing shear forces within the boundary layer.",
+                    "difference in pressure acting on the aerofoil's surface in the direction of flight.",
+                    "loss of momentum within an airflow caused by the aerofoil changing the flow direction.",
+                    "friction between the surface and the air molecules in direct contact with the surface."
+                ],
+                correct: 0
+            },
+            {
+                id: 1763,
+                text: "High-speed buffet is induced by:",
+                options: [
+                    "the bow wave in front of the wing.",
+                    "boundary layer control.",
+                    "interaction between flow separation and shock wave motion.",
+                    "a shift of the centre of gravity."
+                ],
+                correct: 2
+            },
+            {
+                id: 1775,
+                text: "Wing spoilers are deflected symmetrically in flight in order to:",
+                options: [
+                    "assist the ailerons in obtaining a higher roll rate.",
+                    "decelerate the aeroplane and/or increase its rate of descent.",
+                    "improve glide performance (increase lift /drag ratio).",
+                    "prevent aeroplane yaw."
+                ],
+                correct: 1
+            },
+            {
+                id: 1795,
+                text: "Two methods to increase the critical Mach number are:",
+                options: [
+                    "thin aerofoils and dihedral of the wing.",
+                    "thick aerofoils and dihedral of the wing.",
+                    "thin aerofoils and sweepback of the wing.",
+                    "positive cambering of the aerofoil and sweepback of the wing."
+                ],
+                correct: 2
+            },
+            {
+                id: 1812,
+                text: "Positive static stability of an aeroplane means that following a disturbance from the equilibrium condition:",
+                options: [
+                    "the initial tendency is to return towards its equilibrium condition.",
+                    "the tendency is to move with an oscillatory motion of decreasing amplitude.",
+                    "the initial tendency is to diverge further from its equilibrium condition.",
+                    "the tendency is to move with an oscillatory motion of increasing amplitude."
+                ],
+                correct: 0
+            },
+            {
+                id: 1819,
+                text: "On a wing fitted with a \"Fowler\" type trailing edge flap, the \"Full extended\" position will produce:",
+                options: [
+                    "an unaffected CD, at a given angle of attack.",
+                    "an increase in wing area and camber.",
+                    "an increase in wing area only.",
+                    "an unaffected wing area and increase in camber."
+                ],
+                correct: 1
+            },
+            {
+                id: 1895,
+                text: "What does ADF stand for?",
+                options: [
+                    "Airborne Direction Finding",
+                    "Airport Direction Finder",
+                    "Aeroplane Direction Finding",
+                    "Automatic Direction Finder"
+                ],
+                correct: 3
+            },
+            {
+                id: 1897,
+                text: "What causes the so-called night effect?",
+                options: [
+                    "The absence of the surface wave at distances larger than the skip distance.",
+                    "The difference in velocity of the EM-waves over land and over sea, at night.",
+                    "A change in the direction of the plane of polarisation due to reflection in the ionosphere.",
+                    "Interference between the ground and the space wave."
+                ],
+                correct: 2
+            },
+            {
+                id: 1901,
+                text: "NDB is the abbreviation for:",
+                options: [
+                    "Navigation Director Beacon.",
+                    "Night Directional Beacon.",
+                    "Non Directional Bearing.",
+                    "Non Directional Beacon."
+                ],
+                correct: 3
+            },
+            {
+                id: 1909,
+                text: "When the term \"radial\" is used in reference to VOR it means:",
+                options: [
+                    "the magnetic bearing from the VOR station",
+                    "the magnetic bearing of the aircraft to the station",
+                    "the true bearing from the VOR station",
+                    "the magnetic bearing of the VOR station"
+                ],
+                correct: 0
+            },
+            {
+                id: 1929,
+                text: "A Cat III ILS glidepath transmitter provides reliable guidance information down to:",
+                options: [
+                    "the surface of the runway",
+                    "a maximum height of 50 ft above the runway",
+                    "a maximum height of 100 ft above the runway",
+                    "a maximum height of 200 ft above the runway"
+                ],
+                correct: 0
+            },
+            {
+                id: 1932,
+                text: "ILS transmitters use the:",
+                options: [
+                    "UHF band only.",
+                    "UHF and VHF bands.",
+                    "VHF, UHF and HF bands.",
+                    "VHF band only."
+                ],
+                correct: 1
+            },
+            {
+                id: 1967,
+                text: "The selection of code 7600 on an aircraft SSR transponder indicates:",
+                options: [
+                    "unlawful interference with the planned operation of the flight",
+                    "an emergency",
+                    "transponder malfunction",
+                    "radio communication failure"
+                ],
+                correct: 3
+            },
+            {
+                id: 2005,
+                text: "Area Navigation is a method of navigation that permits aircraft operation on any desired flight path within the limits of the capability of self-contained systems. Which of the following systems is such a self-contained system?",
+                options: [
+                    "VOR/DME-system.",
+                    "Global Positioning System.",
+                    "Inertial Reference System.",
+                    "DME/DME-system."
+                ],
+                correct: 2
+            },
+            {
+                id: 2044,
+                text: "Concerning the NAVSTAR/GPS satellite navigation system, what is the meaning of the term 'Receiver Autonomous Integrity Monitoring' (RAIM)?",
+                options: [
+                    "It is a technique whereby the receivers of the world-wide distributed monitor stations (ground segment) automatically determines the integrity of the navigation message",
+                    "It is the ability of the GPS satellites to check the integrity of the data transmitted by the monitoring stations of the ground segment",
+                    "It is a method whereby a receiver ensures the integrity of the Pseudo Random Noise (PRN) code transmitted by the satellites",
+                    "It is a technique by which a receiver ensures the integrity of the navigation information."
+                ],
+                correct: 3
+            },
+            {
+                id: 2046,
+                text: "What is the minimum number of satellites required by a GPS in order to obtain a three dimensional fix?",
+                options: [
+                    "4",
+                    "6",
+                    "5",
+                    "3"
+                ],
+                correct: 0
+            },
+            {
+                id: 378,
+                text: "In a flight plan when the destination aerodrome is A and the alternate aerodrome is B, the final reserve fuel for a turbojet engine aeroplane corresponds to:",
+                options: [
+                    "15 minutes holding 2000 feet above aerodrome A.",
+                    "30 minutes holding 2000 feet above aerodrome B.",
+                    "30 minutes holding 1500 feet above aerodrome A.",
+                    "30 minutes holding 1500 feet above aerodrome B."
+                ],
+                correct: 3
+            },
+            {
+                id: 381,
+                text: "The required time for final reserve fuel for turbojet aeroplane is:",
+                options: [
+                    "variable with wind velocity.",
+                    "30 min.",
+                    "60 min.",
+                    "45 min."
+                ],
+                correct: 1
+            },
+            {
+                id: 386,
+                text: "Which approach segment starts at the FAF and ends at the MAPt?",
+                options: [
+                    "Initial approach",
+                    "Final approach",
+                    "Go-around",
+                    "Intermediate approach"
+                ],
+                correct: 1
+            },
+
+            {
+                id: 568,
+                text: "\"G-ABCD, Runway 10 in use, wind 360°/11 kts, visibility 1200, QNH 1006\" How would you respond to this message?",
+                options: [
+                    "'Runway one zero, QNH one zero zero six'",
+                    "'Runway one zero, G-ABCD'",
+                    "'QNH one zero zero six, G-ABCD'",
+                    "'QNH one zero zero six, wind 360/11'"
+                ],
+                correct: 0
+            },
+            {
+                id: 590,
+                text: "VMC is:",
+                options: [
+                    "Short for Very Marginal Conditions as broadcast by VOLMET.",
+                    "Concerns the way in which instrument flight rules may be interpreted.",
+                    "Only to be used under direct air traffic control.",
+                    "Short for Visual Meteorological conditions."
+                ],
+                correct: 3
+            },
+            {
+                id: 606,
+                text: "What does the abbreviation \"IMC\" mean?",
+                options: [
+                    "Instrument meteorological conditions.",
+                    "In meteorological conditions.",
+                    "International meteorological channel.",
+                    "In most cases."
+                ],
+                correct: 0
+            },
+            {
+                id: 614,
+                text: "The frequency 121.500 MHz is designated as:",
+                options: [
+                    "A frequency for air-to-air communication",
+                    "An airline operation frequency",
+                    "An international emergency frequency",
+                    "A regional UHF frequency"
+                ],
+                correct: 2
+            },
+            {
+                id: 647,
+                text: "An aircraft encountering radio communication failure on an IFR flight in VMC is assumed to:",
+                options: [
+                    "Leave controlled airspace and continue the flight within uncontrolled airspace",
+                    "Squawk IDENT and proceed to the alternate aerodrome",
+                    "Continue to fly in VMC, land at the nearest suitable aerodrome, report its arrival",
+                    "Continue the flight to destination aerodrome in any case"
+                ],
+                correct: 2
+            },
+            {
+                id: 703,
+                text: "The priority of the message LINE UP is:",
+                options: [
+                    "Same as WORK IN PROGRESS IN TAXIWAY.",
+                    "Less than CLEAR TO LAND.",
+                    "Greater than REQUEST QDM.",
+                    "Same as TAXI TO HOLDING POINT RUNWAY 20."
+                ],
+                correct: 3
+            },
+            {
+                id: 751,
+                text: "Below the tropopause in standard conditions, when descending at a constant Mach number:",
+                options: [
+                    "the difference between surrounding conditions and ISA must be known to deduce the TAS variation.",
+                    "TAS remains constant.",
+                    "TAS decreases.",
+                    "TAS increases."
+                ],
+                correct: 3
+            },
+
+            {
+                id: 844,
+                text: "The FMS cross track (XTK) is:",
+                options: [
+                    "the abeam distance error, to the left or right from the desired flight plan leg to the aircraft position.",
+                    "the distance error between the FMS computed position and the GPS computed position.",
+                    "the angular distance error, to the left or right from the desired track (DT) to the aircraft track (TK).",
+                    "the distance error between the FMS computed position and the IRS computed position."
+                ],
+                correct: 0
+            },
+            {
+                id: 856,
+                text: "The temperature lapse rate of the ICAO standard atmosphere in the troposphere is:",
+                options: [
+                    "2.5°C/1000 FT",
+                    "6.5°C/1000 FT",
+                    "3°C/1000 FT",
+                    "2°C/1000 FT"
+                ],
+                correct: 3
+            },
+            {
+                id: 899,
+                text: "Lenticular clouds in mountainous areas indicate:",
+                options: [
+                    "an inversion.",
+                    "unstable air.",
+                    "turbulence.",
+                    "light variable winds."
+                ],
+                correct: 2
+            },
+            {
+                id: 918,
+                text: "The precipitation form +TSRA is most probably related to the following cloud type:",
+                options: [
+                    "NS",
+                    "CC",
+                    "CU",
+                    "CB"
+                ],
+                correct: 3
+            },
+            {
+                id: 919,
+                text: "In which type of cloud would you most likely encounter the most severe icing and turbulence?",
+                options: [
+                    "CI",
+                    "NS",
+                    "SC",
+                    "CB"
+                ],
+                correct: 3
+            },
+
+            {
+                id: 1337,
+                text: "Aeroplane wake turbulence during take off starts when:",
+                options: [
+                    "the nose wheel lifts off the runway.",
+                    "out of ground effect.",
+                    "slats and flaps are extended only.",
+                    "the take off roll commences."
+                ],
+                correct: 0
+            },
+            {
+                id: 1345,
+                text: "A highly concentrated and powerful downdraft of air typically less than 5 km across that lasts for 1 to 5 minutes is..",
+                options: [
+                    "a microburst.",
+                    "a turbulent boundary layer.",
+                    "an inversion.",
+                    "a gust front."
+                ],
+                correct: 0
+            },
+            {
+                id: 1432,
+                text: "The following parameters affect the take-off ground run: 1.decreasing take-off mass 2.increasing take-off mass 3.increasing density 4.decreasing density 5.increasing flap setting 6.decreasing flap setting 7.increasing pressure altitude 8.decreasing pressure altitude Which parameters will decrease the take-off ground run?",
+                options: [
+                    "2, 4, 5 and 7",
+                    "2, 3, 6 and 7",
+                    "1, 3, 5 and 8",
+                    "1, 4, 6 and 8"
+                ],
+                correct: 2
+            },
+            {
+                id: 1444,
+                text: "The Density Altitude:",
+                options: [
+                    "is used to establish minimum clearance of 2.000 feet over mountains.",
+                    "is used to determine the aeroplane performance.",
+                    "is equal to the pressure altitude.",
+                    "is used to calculate the FL above the Transition Altitude."
+                ],
+                correct: 1
+            },
+            {
+                id: 1448,
+                text: "The speed V2 is:",
+                options: [
+                    "the lowest airspeed required to retract flaps without stall problems.",
+                    "the take-off safety speed.",
+                    "that speed at which the PIC should decide to continue or not the takeoff in the case of an engine failure.",
+                    "the lowest safety airspeed at which the aeroplane is under control with aerodynamic surfaces in the case of an engine failure."
+                ],
+                correct: 1
+            },
+            {
+                id: 1453,
+                text: "During climb with all engines, the altitude where the maximum rate of climb reduces to 100 ft/min is called:",
+                options: [
+                    "Service ceiling.",
+                    "Aerodynamic ceiling.",
+                    "Thrust ceiling.",
+                    "Absolute ceiling."
+                ],
+                correct: 0
+            },
+            {
+                id: 1457,
+                text: "Which combination of circumstances or conditions would most likely lead to a tyre speed limited take-off?",
+                options: [
+                    "A high runway elevation and a head wind.",
+                    "A low runway elevation and a head wind.",
+                    "A low runway elevation and a cross wind.",
+                    "A high runway elevation and tail wind."
+                ],
+                correct: 3
+            },
+            {
+                id: 1483,
+                text: "The flight path angle is:",
+                options: [
+                    "The angle of the flight path of an aircraft and the ground.",
+                    "The angle of the flight path of an aircraft and true north.",
+                    "The angle of the flight path of an aircraft and the local horizon.",
+                    "The angle of the flight path of an aircraft and the angle of attack."
+                ],
+                correct: 0
+            },
+            {
+                id: 1501,
+                text: "Which of the following sets of factors will increase the climb-limited TOM (every factor considered independently)?",
+                options: [
+                    "Low flap setting, low PA, low OAT.",
+                    "High flap setting, low PA, low OAT.",
+                    "Low flap setting, high PA, low OAT.",
+                    "Low flap setting, high PA, high OAT."
+                ],
+                correct: 0
+            },
+            {
+                id: 1516,
+                text: "Which person is entitled to request the uplift of Extra Fuel?",
+                options: [
+                    "The operator.",
+                    "The commander.",
+                    "The flight dispatcher.",
+                    "The head of flight operations."
+                ],
+                correct: 1
+            },
+            {
+                id: 1518,
+                text: "The centre of gravity location of the aeroplane is normally computed along the:",
+                options: [
+                    "vertical axis.",
+                    "horizontal axis.",
+                    "longitudinal axis.",
+                    "lateral axis."
+                ],
+                correct: 2
+            },
+            {
+                id: 1521,
+                text: "The actual Zero Fuel Mass (ZFM) is equal to the:",
+                options: [
+                    "Operating Mass plus all the Traffic Load.",
+                    "Basic Empty Mass plus the fuel loaded.",
+                    "Dry Operating Mass plus the Traffic Load.",
+                    "actual Landing Mass plus Trip Fuel."
+                ],
+                correct: 2
+            },
+
+            {
+                id: 1581,
+                text: "The engine air intakes of large transport aircraft are usually protected against ice by..",
+                options: [
+                    "hot bleed air.",
+                    "hot engine oil.",
+                    "pressurised fluid.",
+                    "inflatable boots."
+                ],
+                correct: 0
+            },
+            {
+                id: 1588,
+                text: "Induced drag is created by the:",
+                options: [
+                    "separation of the boundary layer over the wing.",
+                    "propeller wash blowing across the wing.",
+                    "spanwise flow pattern resulting in the tip vortices.",
+                    "interference of the air stream between wing and fuselage."
+                ],
+                correct: 2
+            },
+            {
+                id: 1594,
+                text: "One disadvantage of wing sweepback is:",
+                options: [
+                    "the tendency of the wing root section to stall prior to the wingtip section.",
+                    "the tendency of the wingtip section to stall prior to the wing root section.",
+                    "a severe pitch down moment when the centre of pressure shifts forward.",
+                    "that the critical Mach number is significantly lower."
+                ],
+                correct: 1
+            },
+            {
+                id: 1602,
+                text: "The stall speed:",
+                options: [
+                    "decreases with an increased weight.",
+                    "does not depend on weight.",
+                    "increases with the length of the wingspan.",
+                    "increases with an increased weight."
+                ],
+                correct: 3
+            },
+            {
+                id: 1633,
+                text: "Given a constant load factor, which of these statements about the variation of induced drag with changes of speed and mass are correct or incorrect? 1. When speed increases, induced drag decreases. 2. When mass increases, induced drag increases.",
+                options: [
+                    "1 is incorrect, 2 is correct.",
+                    "1 is correct, 2 is incorrect.",
+                    "1 is incorrect, 2 is incorrect.",
+                    "1 is correct, 2 is correct."
+                ],
+                correct: 3
+            },
+            {
+                id: 1647,
+                text: "Increase of wing loading will:",
+                options: [
+                    "decrease the minimum gliding angle.",
+                    "decrease take off speeds.",
+                    "increase CLmax.",
+                    "increase the stall speeds."
+                ],
+                correct: 3
+            },
+
+            {
+                id: 1766,
+                text: "Decreasing the aspect ratio of a wing:",
+                options: [
+                    "increases induced drag.",
+                    "decreases stall speed.",
+                    "increases gust load.",
+                    "decreases induced drag."
+                ],
+                correct: 0
+            },
+            {
+                id: 1776,
+                text: "Which statement about CG limits is correct?",
+                options: [
+                    "The forward CG limit is mainly determined by the amount of pitch control available from the elevator.",
+                    "If the aft CG limit is correctly chosen, the forward CG limit is automatically determined as well.",
+                    "The forward CG limit is determined by stability considerations only.",
+                    "The aft CG limit is determined by the maximum elevator deflection available."
+                ],
+                correct: 0
+            },
+            {
+                id: 127,
+                text: "Required Navigation Performance (RNP) is a statement of the navigation performance necessary for..",
+                options: [
+                    "the clearance of obstacles in the approach sector.",
+                    "operation on aerodromes.",
+                    "the clearance of obstacles during take-off.",
+                    "operation within a defined airspace."
+                ],
+                correct: 3
+            },
+            {
+                id: 140,
+                text: "What is the purpose of a missed approach procedure?",
+                options: [
+                    "It is designed to provide climb and direct an aircraft back to the initial approach fix (IAF).",
+                    "It is designed to minimize noise.",
+                    "It is designed to provide protection from obstacles.",
+                    "It is designed to climb above the minimum sector altitude (MSA)."
+                ],
+                correct: 2
+            },
+            {
+                id: 1588,
+                text: "Induced drag is created by the:",
+                options: [
+                    "separation of the boundary layer over the wing.",
+                    "propeller wash blowing across the wing.",
+                    "spanwise flow pattern resulting in the tip vortices.",
+                    "interference of the air stream between wing and fuselage."
+                ],
+                correct: 2
+            },
+            {
+                id: 927,
+                text: "For radiation fog to form the conditions in general should be: ___ winds and ___ skies, which usually occur in ___ pressure systems.",
+                options: [
+                    "strong, clear, high",
+                    "light, overcast, low",
+                    "strong, overcast, low",
+                    "light, clear, high"
+                ],
+                correct: 3
+            },
+            {
+                id: 1598,
+                text: "The absolute ceiling",
+                options: [
+                    "is the altitude at which the aeroplane reaches a maximum rate of climb of 100 ft/min.",
+                    "is the altitude at which the best climb gradient attainable is 5%",
+                    "is the altitude at which the rate of climb theoretically is zero.",
+                    "can be reached only with minimum steady flight speed"
+                ],
+                correct: 2
+            },
+            {
+                id: 159,
+                text: "In a non-standard holding pattern turns are made:",
+                options: [
+                    "to the right.",
+                    "in a direction depending on the wind direction.",
+                    "in either direction depending on the entry.",
+                    "to the left."
+                ],
+                correct: 3
+            },
+            {
+                id: 1484,
+                text: "Assuming other factors remain constant and not limiting, increasing the aerodrome pressure altitude:",
+                options: [
+                    "Has no effect on the maximum permitted take-off mass.",
+                    "Will cause the maximum permitted take-off mass to decrease.",
+                    "Has no effect on the maximum permitted take-off mass up to 5,000 ft pressure altitude above which it increases.",
+                    "Will cause the maximum permitted take-off mass to increase"
+                ],
+                correct: 1
+            },
+            {
+                id: 82,
+                text: "Large transport aeroplane hydraulic systems usually operate with a system pressure of approximately..",
+                options: [
+                    "2000 psi.",
+                    "1000 psi.",
+                    "4000 psi.",
+                    "3000 psi."
+                ],
+                correct: 3
+            },
+            {
+                id: 1871,
+                text: "Which of these statements about induced drag are correct or incorrect? I. Induced drag increases as angle of attack decreases. II. At constant load factor, induced drag decreases with decreasing aeroplane mass.",
+                options: [
+                    "I is correct, II is correct.",
+                    "I is incorrect, II is correct.",
+                    "I is correct, II is incorrect.",
+                    "I is incorrect, II is incorrect."
+                ],
+                correct: 1
+            },
+            {
+                id: 949,
+                text: "What are squall lines?",
+                options: [
+                    "Unusual intensive cold fronts.",
+                    "Bands of intensive thunderstorms.",
+                    "The surface weather associated with upper air troughs.",
+                    "The paths of tropical revolving storms."
+                ],
+                correct: 1
+            },
+            {
+                id: 1362,
+                text: "Slow decompression..",
+                options: [
+                    "involves a gradual decrease in cabin pressure.",
+                    "is easy to detect because it occurs slowly.",
+                    "can cause a breach in the aircraft's structure.",
+                    "results in the formation of fog in the cabin."
+                ],
+                correct: 0
+            },
+            {
+                id: 664,
+                text: "What does the phrase \"Verify\" mean:",
+                options: [
+                    "Consider that transmission as not sent",
+                    "Repeat your last transmission",
+                    "Read back VDF bearing",
+                    "Check and confirm with originator"
+                ],
+                correct: 3
+            },
+            {
+                id: 993,
+                text: "What is a trend forecast?",
+                options: [
+                    "A landing forecast appended to METAR/SPECI, valid for 2 hours",
+                    "An aerodrome forecast valid for 9 hours",
+                    "A route forecast valid for 24 hours",
+                    "A routine report"
+                ],
+                correct: 0
+            },
+            {
+                id: 291,
+                text: "What is the colour of runway edge lights?",
+                options: [
+                    "Red",
+                    "Blue",
+                    "White",
+                    "Yellow"
+                ],
+                correct: 2
+            },
+            {
+                id: 501,
+                text: "During a rapid decompression in a two-crew aircraft, the other pilot becomes incapacitated. Your first action is to..",
+                options: [
+                    "call for immediate assistance from cabin crew.",
+                    "administer oxygen to the other pilot.",
+                    "don your own oxygen mask.",
+                    "commence an emergency descent."
+                ],
+                correct: 2
+            },
+            {
+                id: 1704,
+                text: "The purpose of a trim tab (device) is to:",
+                options: [
+                    "trim the aeroplane at low airspeed.",
+                    "reduce or to cancel control forces.",
+                    "trim the aeroplane during normal flight.",
+                    "lower manoeuvring control forces."
+                ],
+                correct: 1
+            },
+            {
+                id: 890,
+                text: "Clear Air Turbulence can be expected:",
+                options: [
+                    "Near a jet stream and with an anabatic wind.",
+                    "Near a jet stream and around and above a CB cloud.",
+                    "With an upper level trough and in a col.",
+                    "Near a jet stream and in Stratus cloud."
+                ],
+                correct: 1
+            },
+            {
+                id: 277,
+                text: "Regarding declared airfield distances the ASDA is:",
+                options: [
+                    "The distance from the start of the take-off run to the end of the clearway.",
+                    "The area beyond the end of the prepared surface only available to aircraft stopping in an emergency.",
+                    "The distance from the start of the take-off run to the last point capable of bearing the full weight of the aircraft under normal operating conditions.",
+                    "The distance from the start of the take-off run to the end of the stopway."
+                ],
+                correct: 3
+            },
+            {
+                id: 1480,
+                text: "All other criteria being equal, what factor can reduce the landing distance?",
+                options: [
+                    "Landing on an airfield at a higher altitude.",
+                    "The use of spoilers.",
+                    "A tailwind component.",
+                    "A wet runway."
+                ],
+                correct: 1
+            },
+            {
+                id: 1577,
+                text: "For most large aeroplanes, spoilers are..",
+                options: [
+                    "upper wing surface devices and their deflection is always asymmetrical.",
+                    "upper wing surface devices and their deflection can be either symmetrical or asymmetrical.",
+                    "lower wing surface devices and their deflection can be either symmetrical or asymmetrical.",
+                    "lower wing surface devices and their deflection is always asymmetrical."
+                ],
+                correct: 1
+            },
+            {
+                id: 1967,
+                text: "The selection of code 7600 on an aircraft SSR transponder indicates:",
+                options: [
+                    "unlawful interference with the planned operation of the flight",
+                    "an emergency",
+                    "transponder malfunction",
+                    "radio communication failure"
+                ],
+                correct: 3
+            },
+            {
+                id: 1466,
+                text: "V1 for a balanced-field is calculated when:",
+                options: [
+                    "the take-off mass is field-length limited by the clearway to produce the maximum take-off mass.",
+                    "the acceleration/stop distance available is equal to the take-off distance available.",
+                    "the take-off mass is field-length limited by the stopway to produce the maximum take-off mass.",
+                    "the speed is equal to V2."
+                ],
+                correct: 1
+            },
+            {
+                id: 1200,
+                text: "The Minimum Equipment List (MEL) defines the equipment which can be inoperative when undertaking a flight and the additional procedures under which this allowance can be accepted. The MEL shall be drawn up by:",
+                options: [
+                    "the operator and may NOT be less restrictive than the Master Minimum Equipment List (MMEL)",
+                    "the manufacturer and may be less restrictive than the Master Minimum Equipment List (MMEL)",
+                    "the operator and may be less restrictive than the Master Minimum Equipment List (MMEL)",
+                    "the manufacturer and may be more restrictive than the Master Minimum Equipment List (MMEL)"
+                ],
+                correct: 0
+            },
+            {
+                id: 802,
+                text: "Total Air Temperature (TAT) is:",
+                options: [
+                    "higher or equal to Static Air Temperature (SAT)",
+                    "TAT is a function of altitude and SAT.",
+                    "Higher or equal to static air temperature (SAT), depending on altitude and SAT.",
+                    "lower than Static Air Temperature (SAT)"
+                ],
+                correct: 0
+            },
+            {
+                id: 1199,
+                text: "Dynamic hydroplaning is a condition that can occur when aircraft..",
+                options: [
+                    "land on a surface with standing water deeper than the tread depth of the tyres.",
+                    "land on wet runways and the fusible plugs melt due to braking inefficiency.",
+                    "land on a surface with standing water about half the tread depth of the tyres.",
+                    "use heavy braking, thereby resulting in a prolonged locked-wheel skid."
+                ],
+                correct: 0
+            },
+            {
+                id: 1479,
+                text: "In which of the flight conditions listed below is the thrust equal to the drag?",
+                options: [
+                    "In a descent with constant TAS",
+                    "In a climb with constant IAS",
+                    "In unaccelerated level flight",
+                    "In accelerated level flight"
+                ],
+                correct: 2
+            },
+            {
+                id: 1345,
+                text: "A highly concentrated and powerful downdraft of air typically less than 5 km across that lasts for 1 to 5 minutes is..",
+                options: [
+                    "a microburst.",
+                    "a turbulent boundary layer.",
+                    "an inversion.",
+                    "a gust front."
+                ],
+                correct: 0
+            },
+            {
+                id: 266,
+                text: "If more than 25 % of the runway is covered by 3mm of water, the runway is considered to be:",
+                options: [
+                    "Wet",
+                    "Contaminated",
+                    "Flooded",
+                    "Damp"
+                ],
+                correct: 1
+            },
+            {
+                id: 1714,
+                text: "The primary purpose of dihedral is to:",
+                options: [
+                    "increase dynamic stability.",
+                    "increase static lateral stability.",
+                    "increase static directional stability.",
+                    "decrease sensitivity to Dutch roll."
+                ],
+                correct: 1
+            }
+
+        ];
+
+
+        // Global variables
+        let currentQuestions = [];
+        let currentQuestionIndex = 0;
+        let userAnswers = [];
+        let wrongAnswers = [];
+        let persistentWrongAnswers = JSON.parse(localStorage.getItem('pilotQuizWrongAnswers')) || [];
+
+        // DOM elements
+        const studyModeSelect = document.getElementById('study-mode');
+        const randomControls = document.getElementById('random-controls');
+        const partsControls = document.getElementById('parts-controls');
+        const searchControls = document.getElementById('search-controls');
+        const wrongAnswersControls = document.getElementById('wrong-answers-controls');
+        const questionPartSelect = document.getElementById('question-part');
+        const searchInput = document.getElementById('search-input');
+        const searchResults = document.getElementById('search-results');
+        const wrongAnswersCount = document.getElementById('wrong-answers-count');
+        const clearWrongAnswersBtn = document.getElementById('clear-wrong-answers-btn');
+        const startBtn = document.getElementById('start-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const introScreen = document.getElementById('intro-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultsScreen = document.getElementById('results-screen');
+        const questionContainer = document.getElementById('question-container');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const submitBtn = document.getElementById('submit-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const scoreDisplay = document.getElementById('score-display');
+        const gradeDisplay = document.getElementById('grade-display');
+        const passFailMessage = document.getElementById('pass-fail-message');
+        const reviewWrongBtn = document.getElementById('review-wrong-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const wrongAnswersContainer = document.getElementById('wrong-answers-container');
+        const wrongAnswersList = document.getElementById('wrong-answers-list');
+
+        // Function to calculate grade based on percentage
+        function calculateGrade(percentage) {
+            if (percentage >= 90) return { grade: 'A', color: 'grade-A' };
+            if (percentage >= 80) return { grade: 'B', color: 'grade-B' };
+            if (percentage >= 70) return { grade: 'C', color: 'grade-C' };
+            if (percentage >= 60) return { grade: 'D', color: 'grade-D' };
+            return { grade: 'F', color: 'grade-F' };
+        }
+
+        // Function to save wrong answers to localStorage
+        function saveWrongAnswersToStorage() {
+            localStorage.setItem('pilotQuizWrongAnswers', JSON.stringify(persistentWrongAnswers));
+            updateWrongAnswersCount();
+        }
+
+        // Function to update wrong answers count display
+        function updateWrongAnswersCount() {
+            const count = persistentWrongAnswers.length;
+            wrongAnswersCount.textContent = count === 0 
+                ? 'No wrong answers recorded yet' 
+                : `${count} wrong answer${count !== 1 ? 's' : ''} to review`;
+        }
+
+        // Function to add wrong answers to persistent storage
+        function addWrongAnswersToStorage(newWrongAnswers) {
+            newWrongAnswers.forEach(newWrong => {
+                // Check if this question is already in the wrong answers
+                const existingIndex = persistentWrongAnswers.findIndex(
+                    existing => existing.question.id === newWrong.question.id
+                );
+                
+                if (existingIndex === -1) {
+                    // Add new wrong answer
+                    persistentWrongAnswers.push({
+                        question: newWrong.question,
+                        timesWrong: 1,
+                        lastWrong: new Date().toISOString()
+                    });
+                } else {
+                    // Update existing wrong answer
+                    persistentWrongAnswers[existingIndex].timesWrong++;
+                    persistentWrongAnswers[existingIndex].lastWrong = new Date().toISOString();
+                }
+            });
+            
+            saveWrongAnswersToStorage();
+        }
+
+        // Function to clear wrong answers history
+        function clearWrongAnswersHistory() {
+            if (confirm('Are you sure you want to clear all your wrong answers history?')) {
+                persistentWrongAnswers = [];
+                saveWrongAnswersToStorage();
+                if (studyModeSelect.value === 'wrong-answers') {
+                    alert('Wrong answers history cleared. There are no questions to study in this mode now.');
+                }
+            }
+        }
+
+        // Initialize the application
+        function init() {
+            console.log('Initializing application...');
+            
+            // Set up event listeners
+            studyModeSelect.addEventListener('change', handleStudyModeChange);
+            startBtn.addEventListener('click', startQuiz);
+            resetBtn.addEventListener('click', resetQuiz);
+            prevBtn.addEventListener('click', showPreviousQuestion);
+            nextBtn.addEventListener('click', showNextQuestion);
+            submitBtn.addEventListener('click', submitQuiz);
+            reviewWrongBtn.addEventListener('click', toggleWrongAnswers);
+            restartBtn.addEventListener('click', restartQuiz);
+            searchInput.addEventListener('input', handleSearch);
+            clearWrongAnswersBtn.addEventListener('click', clearWrongAnswersHistory);
+            
+            // Populate question parts and update wrong answers count
+            populateQuestionParts();
+            updateWrongAnswersCount();
+            
+            // Show initial state
+            handleStudyModeChange();
+            
+            console.log('Application initialized successfully');
+        }
+
+        // Handle study mode change
+        function handleStudyModeChange() {
+            const mode = studyModeSelect.value;
+            
+            // Hide all controls
+            randomControls.classList.add('hidden');
+            partsControls.classList.add('hidden');
+            searchControls.classList.add('hidden');
+            wrongAnswersControls.classList.add('hidden');
+            
+            // Show relevant controls
+            if (mode === 'random') {
+                randomControls.classList.remove('hidden');
+            } else if (mode === 'parts') {
+                partsControls.classList.remove('hidden');
+            } else if (mode === 'search') {
+                searchControls.classList.remove('hidden');
+            } else if (mode === 'wrong-answers') {
+                wrongAnswersControls.classList.remove('hidden');
+                updateWrongAnswersCount();
+            }
+        }
+
+        // Populate question parts dropdown
+        function populateQuestionParts() {
+            const questionsPerPart = 30;
+            const totalParts = Math.ceil(questions.length / questionsPerPart);
+            
+            questionPartSelect.innerHTML = '';
+            
+            for (let i = 0; i < totalParts; i++) {
+                const startIndex = i * questionsPerPart;
+                const endIndex = Math.min(startIndex + questionsPerPart, questions.length);
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = `Part ${i + 1} (Questions ${startIndex + 1}-${endIndex})`;
+                questionPartSelect.appendChild(option);
+            }
+        }
+
+        // Handle search input
+        function handleSearch() {
+            const query = searchInput.value.toLowerCase().trim();
+            
+            if (query.length < 2) {
+                searchResults.style.display = 'none';
+                return;
+            }
+            
+            // Filter questions based on search query
+            const results = questions.filter(q => 
+                q.text.toLowerCase().includes(query) ||
+                q.options.some(opt => opt.toLowerCase().includes(query))
+            );
+            
+            // Display results
+            searchResults.innerHTML = '';
+            
+            if (results.length === 0) {
+                const noResults = document.createElement('div');
+                noResults.className = 'search-result-item';
+                noResults.textContent = 'No questions found';
+                searchResults.appendChild(noResults);
+            } else {
+                results.slice(0, 10).forEach(question => {
+                    const resultItem = document.createElement('div');
+                    resultItem.className = 'search-result-item';
+                    
+                    // Truncate text if too long
+                    let displayText = question.text;
+                    if (displayText.length > 100) {
+                        displayText = displayText.substring(0, 100) + '...';
+                    }
+                    
+                    resultItem.textContent = `Q${question.id}: ${displayText}`;
+                    resultItem.addEventListener('click', () => {
+                        searchInput.value = '';
+                        searchResults.style.display = 'none';
+                        startQuizWithQuestions([question]);
+                    });
+                    
+                    searchResults.appendChild(resultItem);
+                });
+            }
+            
+            searchResults.style.display = 'block';
+        }
+
+        // Start quiz based on selected mode
+        function startQuiz() {
+            const mode = studyModeSelect.value;
+            
+            if (mode === 'random') {
+                const count = parseInt(document.getElementById('question-count').value);
+                startRandomQuiz(count);
+            } else if (mode === 'parts') {
+                const partIndex = parseInt(questionPartSelect.value);
+                startPartQuiz(partIndex);
+            } else if (mode === 'search') {
+                // For search mode, we need to have searched first
+                alert('Please use the search bar to find specific questions.');
+                return;
+            } else if (mode === 'wrong-answers') {
+                startWrongAnswersQuiz();
+            }
+            
+            // Hide intro screen, show quiz screen
+            introScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+            
+            console.log('Quiz started with', currentQuestions.length, 'questions');
+        }
+
+        // Start quiz with random questions
+        function startRandomQuiz(count) {
+            // Create a copy of questions array to avoid modifying the original
+            const shuffled = [...questions].sort(() => 0.5 - Math.random());
+            currentQuestions = shuffled.slice(0, count);
+            initializeQuiz();
+        }
+
+        // Start quiz with specific part
+        function startPartQuiz(partIndex) {
+            const questionsPerPart = 30;
+            const startIndex = partIndex * questionsPerPart;
+            const endIndex = Math.min(startIndex + questionsPerPart, questions.length);
+            currentQuestions = questions.slice(startIndex, endIndex);
+            initializeQuiz();
+        }
+
+        // Start quiz with wrong answers
+        function startWrongAnswersQuiz() {
+            if (persistentWrongAnswers.length === 0) {
+                alert('No wrong answers recorded yet. Complete some quizzes first to build your wrong answers collection.');
+                return;
+            }
+            
+            currentQuestions = persistentWrongAnswers.map(item => item.question);
+            initializeQuiz();
+        }
+
+        // Start quiz with specific questions (for search results)
+        function startQuizWithQuestions(selectedQuestions) {
+            currentQuestions = selectedQuestions;
+            initializeQuiz();
+            
+            // Hide intro screen, show quiz screen
+            introScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+        }
+
+        // Initialize quiz state
+        function initializeQuiz() {
+            currentQuestionIndex = 0;
+            userAnswers = new Array(currentQuestions.length).fill(null);
+            wrongAnswers = [];
+            
+            // Update UI
+            updateProgressBar();
+            showCurrentQuestion();
+            updateNavigationButtons();
+            
+            console.log('Quiz initialized with', currentQuestions.length, 'questions');
+        }
+
+        // Show current question
+        function showCurrentQuestion() {
+            if (currentQuestions.length === 0) return;
+            
+            const question = currentQuestions[currentQuestionIndex];
+            questionContainer.innerHTML = '';
+            
+            // Create question number and text
+            const questionNumber = document.createElement('div');
+            questionNumber.className = 'question-number';
+            questionNumber.textContent = `Question ${currentQuestionIndex + 1} of ${currentQuestions.length}`;
+            questionContainer.appendChild(questionNumber);
+            
+            const questionText = document.createElement('div');
+            questionText.className = 'question-text';
+            questionText.textContent = question.text;
+            questionContainer.appendChild(questionText);
+            
+            // Create options
+            const optionsContainer = document.createElement('div');
+            optionsContainer.className = 'options';
+            
+            question.options.forEach((option, index) => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'option';
+                
+                // Only add 'selected' class if this is the user's answer
+                if (userAnswers[currentQuestionIndex] === index) {
+                    optionElement.classList.add('selected');
+                }
+                
+                optionElement.textContent = option;
+                optionElement.addEventListener('click', () => selectOption(index));
+                optionsContainer.appendChild(optionElement);
+            });
+            
+            questionContainer.appendChild(optionsContainer);
+            
+            // Create feedback element
+            const feedbackElement = document.createElement('div');
+            feedbackElement.id = 'feedback';
+            feedbackElement.className = 'feedback';
+            questionContainer.appendChild(feedbackElement);
+            
+            // Show feedback if answer was already given
+            if (userAnswers[currentQuestionIndex] !== null) {
+                showFeedback();
+            }
+        }
+
+        // Select an option - ensures single selection
+        function selectOption(optionIndex) {
+            userAnswers[currentQuestionIndex] = optionIndex;
+            showCurrentQuestion(); // This will refresh the display to show only the selected option
+            showFeedback();
+            
+            // Show submit button if on last question and all questions are answered
+            if (currentQuestionIndex === currentQuestions.length - 1 && userAnswers.every(answer => answer !== null)) {
+                submitBtn.classList.remove('hidden');
+                console.log('Submit button should now be visible');
+            }
+        }
+
+        // Show feedback for current question
+        function showFeedback() {
+            const question = currentQuestions[currentQuestionIndex];
+            const userAnswer = userAnswers[currentQuestionIndex];
+            const feedbackElement = document.getElementById('feedback');
+            
+            // Clear previous feedback classes
+            feedbackElement.className = 'feedback';
+            
+            if (userAnswer === question.correct) {
+                feedbackElement.textContent = 'Correct!';
+                feedbackElement.classList.add('correct');
+            } else {
+                feedbackElement.textContent = `Incorrect. The correct answer is: ${question.options[question.correct]}`;
+                feedbackElement.classList.add('incorrect');
+            }
+            
+            // Highlight options
+            const options = document.querySelectorAll('.option');
+            options.forEach((option, index) => {
+                if (index === question.correct) {
+                    option.classList.add('correct');
+                } else if (index === userAnswer && index !== question.correct) {
+                    option.classList.add('incorrect');
+                }
+            });
+        }
+
+        // Update navigation buttons
+        function updateNavigationButtons() {
+            prevBtn.disabled = currentQuestionIndex === 0;
+            nextBtn.disabled = currentQuestionIndex === currentQuestions.length - 1;
+            
+            // Show submit button only on last question and if all questions are answered
+            if (currentQuestionIndex === currentQuestions.length - 1 && userAnswers.every(answer => answer !== null)) {
+                submitBtn.classList.remove('hidden');
+                console.log('Submit button shown');
+            } else {
+                submitBtn.classList.add('hidden');
+            }
+        }
+
+        // Show previous question
+        function showPreviousQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                updateProgressBar();
+                showCurrentQuestion();
+                updateNavigationButtons();
+            }
+        }
+
+        // Show next question
+        function showNextQuestion() {
+            if (currentQuestionIndex < currentQuestions.length - 1) {
+                currentQuestionIndex++;
+                updateProgressBar();
+                showCurrentQuestion();
+                updateNavigationButtons();
+            }
+        }
+
+        // Update progress bar
+        function updateProgressBar() {
+            const progress = ((currentQuestionIndex + 1) / currentQuestions.length) * 100;
+            progressBar.style.width = `${progress}%`;
+        }
+
+        // Submit quiz and show results
+        function submitQuiz() {
+            console.log('Submit quiz function called');
+            console.log('Current questions:', currentQuestions.length);
+            console.log('User answers:', userAnswers);
+            
+            // Check if all questions are answered
+            const unansweredQuestions = userAnswers.filter(answer => answer === null).length;
+            if (unansweredQuestions > 0) {
+                alert(`Please answer all ${unansweredQuestions} remaining questions before submitting.`);
+                return;
+            }
+            
+            // Calculate score
+            let correctCount = 0;
+            wrongAnswers = [];
+            
+            currentQuestions.forEach((question, index) => {
+                if (userAnswers[index] === question.correct) {
+                    correctCount++;
+                } else {
+                    wrongAnswers.push({
+                        question: question,
+                        userAnswer: userAnswers[index],
+                        questionIndex: index
+                    });
+                }
+            });
+            
+            const score = Math.round((correctCount / currentQuestions.length) * 100);
+            const gradeInfo = calculateGrade(score);
+            
+            console.log('Score calculated:', score, 'Grade:', gradeInfo.grade);
+            
+            // Display results
+            gradeDisplay.textContent = gradeInfo.grade;
+            gradeDisplay.className = `grade ${gradeInfo.color}`;
+            
+            scoreDisplay.textContent = `${score}% (${correctCount}/${currentQuestions.length} correct)`;
+            scoreDisplay.className = `score ${score >= 70 ? 'pass' : 'fail'}`;
+            
+            if (score >= 70) {
+                passFailMessage.textContent = 'Congratulations! You passed the quiz.';
+                passFailMessage.style.color = 'var(--success)';
+            } else {
+                passFailMessage.textContent = 'You did not pass. Review the questions and try again.';
+                passFailMessage.style.color = 'var(--error)';
+            }
+            
+            // Add wrong answers to persistent storage (except when already in wrong answers mode)
+            if (studyModeSelect.value !== 'wrong-answers') {
+                addWrongAnswersToStorage(wrongAnswers);
+            }
+            
+            // Hide quiz screen, show results screen
+            quizScreen.classList.add('hidden');
+            resultsScreen.classList.remove('hidden');
+            
+            console.log('Results screen should now be visible');
+            
+            // Show wrong answers if any
+            if (wrongAnswers.length > 0) {
+                showWrongAnswers();
+            }
+        }
+
+        // Show wrong answers
+        function showWrongAnswers() {
+            wrongAnswersList.innerHTML = '';
+            
+            if (wrongAnswers.length === 0) {
+                const noWrongAnswers = document.createElement('div');
+                noWrongAnswers.textContent = 'No wrong answers to review!';
+                noWrongAnswers.style.textAlign = 'center';
+                noWrongAnswers.style.padding = '20px';
+                wrongAnswersList.appendChild(noWrongAnswers);
+                return;
+            }
+            
+            wrongAnswers.forEach((wrong, index) => {
+                const wrongItem = document.createElement('div');
+                wrongItem.className = 'wrong-answer-item';
+                
+                const questionNumber = document.createElement('div');
+                questionNumber.className = 'question-number';
+                questionNumber.textContent = `Question ${wrong.questionIndex + 1} (ID: ${wrong.question.id})`;
+                wrongItem.appendChild(questionNumber);
+                
+                const questionText = document.createElement('div');
+                questionText.className = 'question-text';
+                questionText.textContent = wrong.question.text;
+                wrongItem.appendChild(questionText);
+                
+                const userAnswer = document.createElement('div');
+                userAnswer.textContent = `Your answer: ${wrong.question.options[wrong.userAnswer]}`;
+                userAnswer.style.color = 'var(--error)';
+                userAnswer.style.fontWeight = 'bold';
+                userAnswer.style.marginTop = '10px';
+                wrongItem.appendChild(userAnswer);
+                
+                const correctAnswer = document.createElement('div');
+                correctAnswer.textContent = `Correct answer: ${wrong.question.options[wrong.question.correct]}`;
+                correctAnswer.style.color = 'var(--success)';
+                correctAnswer.style.fontWeight = 'bold';
+                correctAnswer.style.marginBottom = '10px';
+                wrongItem.appendChild(correctAnswer);
+                
+                wrongAnswersList.appendChild(wrongItem);
+            });
+            
+            wrongAnswersContainer.classList.remove('hidden');
+            reviewWrongBtn.textContent = 'Hide Wrong Answers';
+        }
+
+        // Toggle wrong answers display
+        function toggleWrongAnswers() {
+            if (wrongAnswersContainer.classList.contains('hidden')) {
+                wrongAnswersContainer.classList.remove('hidden');
+                reviewWrongBtn.textContent = 'Hide Wrong Answers';
+            } else {
+                wrongAnswersContainer.classList.add('hidden');
+                reviewWrongBtn.textContent = 'Review Wrong Answers';
+            }
+        }
+
+        // Restart quiz
+        function restartQuiz() {
+            resultsScreen.classList.add('hidden');
+            introScreen.classList.remove('hidden');
+            wrongAnswersContainer.classList.add('hidden');
+            reviewWrongBtn.textContent = 'Review Wrong Answers';
+        }
+
+        // Reset quiz to initial state
+        function resetQuiz() {
+            currentQuestions = [];
+            currentQuestionIndex = 0;
+            userAnswers = [];
+            wrongAnswers = [];
+            
+            quizScreen.classList.add('hidden');
+            resultsScreen.classList.add('hidden');
+            introScreen.classList.remove('hidden');
+            wrongAnswersContainer.classList.add('hidden');
+            reviewWrongBtn.textContent = 'Review Wrong Answers';
+        }
+
+        // Initialize the application when DOM is loaded
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
